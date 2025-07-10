@@ -1,1 +1,1 @@
-# AI-Diagnostic-Imaging-Agent
+# AI Diagnostic Imaging Agent
