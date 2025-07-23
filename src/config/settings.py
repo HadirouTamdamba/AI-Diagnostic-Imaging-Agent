@@ -1,9 +1,11 @@
 """
 Configuration settings for Medical Imaging Diagnosis Agent
+Fixed for Pydantic v2+ compatibility
 """
 import os
-from typing import Dict, Any
-from pydantic import BaseSettings, validator
+from typing import Dict, Any, List
+from pydantic_settings import BaseSettings
+from pydantic import field_validator
 import streamlit as st
 
 class Settings(BaseSettings):
@@ -15,7 +17,7 @@ class Settings(BaseSettings):
     
     # Image Processing
     max_image_size: int = 5 * 1024 * 1024  # 5MB
-    supported_formats: list = ["jpg", "jpeg", "png", "dicom"]
+    supported_formats: List[str] = ["jpg", "jpeg", "png", "dicom"]
     max_image_width: int = 1024
     max_image_height: int = 1024
     
@@ -27,15 +29,25 @@ class Settings(BaseSettings):
     page_title: str = "🏥 Medical Imaging Diagnosis Agent"
     page_icon: str = "🩻"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": False,
+        "extra": "ignore"
+    }
     
-    @validator('google_api_key')
+    @field_validator('google_api_key')
+    @classmethod
     def validate_api_key(cls, v):
-        if not v and not st.session_state.get('GOOGLE_API_KEY'):
-            return ""
-        return v or st.session_state.get('GOOGLE_API_KEY', "")
+        if not v and st.session_state.get('GOOGLE_API_KEY'):
+            return st.session_state.get('GOOGLE_API_KEY', "")
+        return v
+    
+    @field_validator('supported_formats')
+    @classmethod
+    def validate_formats(cls, v):
+        if not isinstance(v, list):
+            return ["jpg", "jpeg", "png", "dicom"]
+        return v
 
 # Global settings instance
 settings = Settings()
