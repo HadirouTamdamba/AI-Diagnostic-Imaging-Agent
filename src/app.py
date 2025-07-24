@@ -1,6 +1,4 @@
-"""
-Enhanced Main Streamlit application with latest optimizations for Medical Imaging Diagnosis Agent
-  
+"""Enhanced Main Streamlit application with latest optimizations for Medical Imaging Diagnosis Agent 
 """
 import streamlit as st
 import logging
@@ -10,6 +8,13 @@ from pathlib import Path
 from typing import Optional
 import time
 import traceback
+import warnings
+
+
+# Suppress specific warnings
+os.environ['PYTHONWARNINGS'] = 'ignore::RuntimeWarning:duckduckgo_search'
+warnings.filterwarnings('ignore', category=RuntimeWarning, module='duckduckgo_search')
+warnings.filterwarnings('ignore', category=ResourceWarning, message='.*unclosed file.*')
 
 # Add src to path for imports
 current_dir = Path(__file__).parent
@@ -24,7 +29,7 @@ logging.basicConfig(
         logging.StreamHandler(),
         logging.FileHandler('medical_agent.log', mode='a')
     ]
-)
+) 
 logger = logging.getLogger(__name__)
 
 try:
@@ -85,7 +90,8 @@ class MedicalImagingApp:
                 "GOOGLE_API_KEY": None,
                 "current_analysis": None,
                 "app_initialized": True,
-                "error_count": 0
+                "error_count": 0,
+                "current_page": "main"  # Add page navigation
             }
             
             for key, default_value in session_defaults.items():
@@ -100,10 +106,15 @@ class MedicalImagingApp:
             st.error("Failed to initialize session. Please refresh the page.")
     
     def render_sidebar(self):
-        """Enhanced sidebar with better error handling"""
+        """Enhanced sidebar with better error handling and navigation"""
         try:
             with st.sidebar:
                 st.title("⚙️ Configuration")
+                
+                # Navigation Menu
+                self._render_navigation_menu()
+                
+                st.divider()
                 
                 # API Key Configuration Section
                 self._render_api_config()
@@ -130,6 +141,23 @@ class MedicalImagingApp:
         except Exception as e:
             logger.error(f"Sidebar rendering failed: {e}")
             st.error("Sidebar configuration error")
+    
+    def _render_navigation_menu(self):
+        """Render navigation menu in sidebar"""
+        st.subheader("🧭 Navigation")
+        
+        # Navigation buttons
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🏠 Home", use_container_width=True):
+                st.session_state.current_page = "main"
+                st.rerun()
+        
+        with col2:
+            if st.button("👨‍💻 About", use_container_width=True):
+                st.session_state.current_page = "about"
+                st.rerun()
     
     def _render_api_config(self):
         """Render API configuration section"""
@@ -257,9 +285,455 @@ class MedicalImagingApp:
             "**Do not make medical decisions** based solely on this analysis."
         )
     
+    def render_about_page(self):
+        """Render the About Me page"""
+        st.title("👨‍💻 About the Author")
+        st.markdown("---")
+        
+        # Professional profile section
+        col1, col2 = st.columns([1, 2])
+        
+        with col1:
+            # Professional photo placeholder or icon
+            st.markdown(
+                """
+                <div style='text-align: center; padding: 20px;'>
+                    <div style='font-size: 80px; color: #1f77b4;'>👨‍💻</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
+        with col2:
+            st.markdown("""
+            ## **Hadirou Tamdamba**
+            ### *AI x ML(Ops) Engineer Consultant | Microsoft Certified Generative AI Engineer *
+            #### *4+ Years Experience | Master's Degree in Applied Mathematics & Statistics*
+            """)
+        
+        st.markdown("---")
+        
+        # Professional summary
+        st.subheader("🎯 Professional Summary")
+        st.markdown("""
+        **Artificial Intelligence (AI) & Machine Learning (ML) Engineer** with **4+ years of experience** in the Data/AI field 
+        for strategic projects across **Switzerland, Luxembourg, France, and Burkina Faso**. Holding a **Master's Degree in 
+        Applied Mathematics and Statistics**, along with certifications in **AI & ML Engineering, MLOps, LLMOps, Cloud, and 
+        Generative AI** (Microsoft, DataCamp, NASBA & PMI in USA, LinkedIn).
+        
+        I specialize in **predictive modeling, advanced analytics, and deploying innovative AI solutions** across diverse industries. 
+        My expertise spans the complete AI lifecycle, from research and development to production deployment, ensuring seamless 
+        integration while maintaining the highest standards of modern **MLOps, LLMOps, and DevOps best practices**.
+        
+        **Co-author of peer-reviewed scientific publications** and passionate about deriving actionable insights and 
+        driving innovation in AI within dynamic, collaborative environments.
+        """)
+        
+        # Industry Expertise & Project Experience
+        st.subheader("🏭 Industry Experience & Strategic Projects")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("""
+            **🏥 Healthcare & Life Sciences**
+            - Wastewater-Based-Epidemiology
+            - Respiratory Viruses (COVID-19, Influenza)
+            - Chronic Diseases (Diabetes, Heart Disease)
+            - Cancer Research & HIV Studies
+            - Statistical Analysis Plans
+            - Clinical Data Modeling
+            """)
+        
+        with col2:
+            st.markdown("""
+            **💰 Finance & Banking**
+            - Credit Risk Modeling
+            - Fraud Detection Systems
+            - Financial Analytics
+            - Risk Assessment Models
+            - Algorithmic Solutions
+            """)
+        
+        with col3:
+            st.markdown("""
+            **📊 Marketing & Real Estate**
+            - Airbnb Market Analysis (Europe)
+            - Recommendation Systems
+            - Telecommunication Customer Churn Prediction
+            - Social Media Sentiment Analysis
+            - Predictive Analytics
+            """)
+        
+        # Geographic Experience
+        st.info("🌍 **International Experience**: Strategic AI projects across Switzerland, Luxembourg, France, and Burkina Faso")
+        
+        # Core Technical Expertise
+        st.subheader("🚀 Core Technical Skills")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **Programming & AI/ML:**
+            - 🐍 **Python**: Scikit-Learn, PyTorch, TensorFlow, Keras, XGBoost
+            - 🧠 **Deep Learning**: LSTM, RNNs, Transformers, Prophet
+            - 🔍 **Computer Vision**: OpenCV, VGG 16/19, YOLO
+            - 📊 **Data Science**: Skrub, Pandas, NumPy, Polars, PySpark, Pydantic
+            - 📈 **Visualization**: Matplotlib, Seaborn, Plotly, Power BI
+            - 💻 **Languages**: R, SQL, NoSQL, Java, JavaScript, C++, SAS
+            """)
+        
+        with col2:
+            st.markdown("""
+            **MLOps & Cloud Platforms:**
+            - ☁️ **AWS**: EC2, Lambda, S3, SageMaker, Route 53
+            - 🔵 **Azure**: DevOps, ML Services, Cloud Computing
+            - 🤖 **IBM Watson X**: AI Studio, ML Pipelines
+            - 🐳 **DevOps**: Docker, Kubernetes, Terraform, Jenkins
+            - 🔄 **CI/CD**: GitHub Actions, GitLab, Azure DevOps
+            - 📊 **Data Platforms**: Snowflake, Databricks, BigQuery
+            """)
+        
+        # Developer Tools & Frameworks
+        st.markdown("---")
+        
+        dev_col1, dev_col2 = st.columns(2)
+        
+        with dev_col1:
+            st.markdown("""
+            **🛠️ Developer Tools & APIs:**
+            - Version Control: Git, GitHub, GitLab
+            - IDEs: VSCode, Cursor, Jupyter, PyCharm
+            - Testing: Pytest, Unit Testing
+            - APIs: OpenAI, GPT, Gemini, Claude, LLaMA, Mistral
+            - Frameworks: LangChain, RAG, HuggingFace Transformers
+            - Web: Flask, FastAPI, Django, Streamlit, React, Node.js
+            """)
+        
+        with dev_col2:
+            st.markdown("""
+            **💾 Data & Infrastructure:**
+            - Databases: MySQL, MongoDB, Oracle, PostgreSQL
+            - Big Data: Apache Spark, Hadoop, Linux/Unix
+            - Analytics: SPSS, Stata, SAS, Statistical Modeling
+            - NLP: NLTK, Text Processing, Sentiment Analysis
+            - MLOps: MLflow, Model Monitoring, Deployment
+            - Documentation: LaTeX, Technical Writing
+            """)
+        
+        # Services offered
+        st.subheader("💼 Consulting Services")
+        
+        services = [
+            {
+                "title": "🎯 AI Strategy & Digital Transformation",
+                "description": """Strategic planning and execution of AI initiatives tailored to your industry. 
+                From initial assessment to full-scale implementation across Healthcare, Finance, and Enterprise sectors."""
+            },
+            {
+                "title": "🔧 MLOps & DevOps Infrastructure",
+                "description": """Design and implement robust MLOps pipelines with modern DevOps practices. 
+                Cloud-native architectures on AWS, GCP, and IBM Watson X with automated CI/CD workflows."""
+            },
+            {
+                "title": "🏥 Healthcare AI Solutions",
+                "description": """Specialized medical AI applications including diagnostic imaging, clinical decision support, 
+                and patient monitoring systems with full regulatory compliance."""
+            },
+            {
+                "title": "💰 Financial AI & Risk Management",
+                "description": """Advanced financial models for credit risk assessment, fraud detection, algorithmic trading, 
+                and regulatory compliance solutions."""
+            },
+            {
+                "title": "🤖 Custom AI Application Development",
+                "description": """End-to-end development of production-ready AI applications with modern software engineering 
+                practices, scalable architecture, and comprehensive testing."""
+            },
+            {
+                "title": "📚 Team Training & Technology Transfer",
+                "description": """Comprehensive training programs in AI/ML technologies, MLOps methodologies, 
+                cloud platforms, and modern development practices for your technical teams."""
+            }
+        ]
+        
+        for service in services:
+            with st.expander(service["title"], expanded=False):
+                st.markdown(service["description"])
+        
+        # Featured Projects Portfolio
+        st.subheader("🔬 Featured Projects Portfolio")
+        
+        projects = [
+            {
+                "title": "🏥 Medical Imaging Diagnosis Agent",
+                "description": "AI-powered medical image analysis using Google's Gemini AI with production-ready Streamlit interface",
+                "tech": "Python, Streamlit, Google AI, Computer Vision, Medical Imaging",
+                "link": "Current Application",
+                "industry": "Healthcare"
+            },
+            {
+                "title": "💳 Credit Risk Modeling & Payment Default Prediction",
+                "description": "Advanced ML models for predicting payment defaults in financial services with comprehensive risk assessment",
+                "tech": "Python, Scikit-learn, XGBoost, AWS SageMaker, Statistical Modeling",
+                "link": "https://github.com/HadirouTamdamba/Prediction-payments-default-finance",
+                "industry": "Finance"
+            },
+            {
+                "title": "🛡️ Fraud Detection in Financial Transactions (EU)",
+                "description": "Real-time fraud detection system for European financial transactions with advanced anomaly detection",
+                "tech": "Python, TensorFlow, Apache Kafka, Docker, Real-time Processing",
+                "link": "https://github.com/HadirouTamdamba/Fraud-Detection-in-Financial-Transactions-EU",
+                "industry": "Finance"
+            },
+            {
+                "title": "🦠 Wastewater-Based Epidemiology Research",
+                "description": "Statistical analysis and predictive modeling for COVID-19 and Influenza tracking through wastewater monitoring",
+                "tech": "R, Python, Statistical Analysis, Time Series, Epidemiological Modeling",
+                "link": "Research Publications",
+                "industry": "Healthcare"
+            },
+            {
+                "title": "🏠 Airbnb Market Analysis (Europe)",
+                "description": "Comprehensive market analysis and price prediction models for European Airbnb markets",
+                "tech": "Python, Pandas, Scikit-learn, Data Visualization, Market Analytics",
+                "link": "Analytics Project",
+                "industry": "Real Estate"
+            },
+            {
+                "title": "📱 Telecommunication Customer Churn Prediction",
+                "description": "Machine learning solution for predicting and preventing customer churn in telecommunications",
+                "tech": "Python, XGBoost, Feature Engineering, Predictive Analytics",
+                "link": "ML Project",
+                "industry": "Telecommunications"
+            }
+        ]
+        
+        for project in projects:
+            with st.expander(f"{project['title']} - {project['industry']}", expanded=False):
+                st.markdown(f"""
+                **Description**: {project['description']}
+                
+                **Technologies**: {project['tech']}
+                
+                **Industry Focus**: {project['industry']}
+                """)
+                
+                if project['link'].startswith('http'):
+                    st.link_button("🔗 View Project", project['link'])
+                else:
+                    st.info(f"📍 {project['link']}")
+        
+        # Certifications & achievements
+        st.subheader("🏆 Certifications & Academic Background")
+        
+        cert_col1, cert_col2 = st.columns(2)
+        
+        with cert_col1:
+            st.markdown("""
+            **🎓 Education & Certifications:**
+            - **Master's Degree in Applied Mathematics & Statistics**
+            - 🎯 **Microsoft Certified: Generative AI Engineer**
+            - 📊 **DataCamp Certified: ML & Data Science**
+            - 🇺🇸 **NASBA & PMI (USA) Certified**
+            - 💼 **LinkedIn Learning Certifications**
+            """)
+        
+        with cert_col2:
+            st.markdown("""
+            **📚 Research & Publications:**
+            - 🔬 **Co-author of Peer-Reviewed Scientific Publications**
+            - 📝 **Research in Wastewater-Based Epidemiology**
+            - 🦠 **COVID-19 & Influenza Studies**
+            - 📊 **Statistical Methodology Expert**
+            - 🧪 **Healthcare Analytics Research**
+            """)
+        
+        # Soft Skills
+        st.subheader("💡 Professional Competencies")
+        
+        soft_skills_col1, soft_skills_col2 = st.columns(2)
+        
+        with soft_skills_col1:
+            st.markdown("""
+            **🤝 Leadership & Collaboration:**
+            - Autonomy & Self-direction
+            - Teamwork & Cross-functional Collaboration
+            - Agility & Adaptability to Fast-changing Technologies
+            - Multi-tasking & Project Management
+            """)
+        
+        with soft_skills_col2:
+            st.markdown("""
+            **🧠 Problem-Solving & Communication:**
+            - Creative Thinking & Innovation
+            - Self-learner & Continuous Improvement
+            - Excellent Problem-solving Skills
+            - Complex Technical Communication to Non-technical Stakeholders
+            """)
+        
+        # Technology Stack
+        st.subheader("⚙️ Comprehensive Technology Stack")
+        
+        tech_tabs = st.tabs(["🐍 Python Ecosystem", "☁️ Cloud & MLOps", "📊 Data & Analytics", "🌐 Web & APIs"])
+        
+        with tech_tabs[0]:
+            st.markdown("""
+            **Core Python Libraries:**
+            - **ML/DL**: Scikit-Learn, PyTorch, TensorFlow, Keras, XGBoost, Prophet
+            - **Deep Learning**: LSTM, RNNs, Transformers, Neural Networks
+            - **Computer Vision**: OpenCV, VGG 16/19, YOLO, Image Processing
+            - **Data Processing**: Pandas, NumPy, Polars, PySpark, Pydantic, Skrub
+            - **Visualization**: Matplotlib, Seaborn, Plotly, Interactive Dashboards
+            - **NLP**: NLTK, Transformers, Text Processing, Sentiment Analysis
+            - **Testing**: Pytest, Unit Testing, Quality Assurance
+            """)
+        
+        with tech_tabs[1]:
+            st.markdown("""
+            **Cloud Platforms & MLOps:**
+            - **AWS**: EC2, Lambda, S3, SageMaker, Route 53/Nginx
+            - **Microsoft Azure**: ML Services, DevOps, Cloud Computing
+            - **IBM Watson X**: AI Studio, Watson Machine Learning
+            - **MLOps**: MLflow, Model Monitoring, Deployment Pipelines
+            - **Containers**: Docker, Kubernetes/K8s, Container Orchestration
+            - **CI/CD**: GitHub Actions, GitLab, Azure DevOps, Jenkins
+            - **Infrastructure**: Terraform, Shell/Bash, Linux/Unix
+            """)
+        
+        with tech_tabs[2]:
+            st.markdown("""
+            **Data Platforms & Analytics:**
+            - **Big Data**: Apache Spark, Hadoop, Distributed Computing
+            - **Cloud Data**: Snowflake, Databricks, BigQuery
+            - **Databases**: MySQL, MongoDB, Oracle, PostgreSQL
+            - **Statistical Software**: R, SAS, Stata, SPSS
+            - **BI Tools**: Power BI, Data Visualization, Reporting
+            - **Data Engineering**: ETL Pipelines, Data Processing
+            """)
+        
+        with tech_tabs[3]:
+            st.markdown("""
+            **Web Development & APIs:**
+            - **Web Frameworks**: Flask, FastAPI, Django, Streamlit
+            - **Frontend**: JavaScript, Node.js, React, HTML/CSS
+            - **AI APIs**: OpenAI, GPT, Gemini, Claude, LLaMA, Mistral
+            - **LLM Frameworks**: LangChain, RAG, HuggingFace
+            - **Development**: Git, VSCode, API Development
+            - **Deployment**: Render, Cloud Deployment, Web Services
+            """)
+        
+        # Contact information
+        st.subheader("📞 Let's Connect & Collaborate")
+        st.markdown("---")
+        
+        # Contact buttons
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.link_button(
+                "💼 LinkedIn Profile",
+                "https://www.linkedin.com/in/hadirou-tamdamba/",
+                use_container_width=True
+            )
+        
+        with col2:
+            st.link_button(
+                "🔗 GitHub Portfolio",
+                "https://github.com/HadirouTamdamba",
+                use_container_width=True
+            )
+        
+        with col3:
+            if st.button("📧 Email Contact", use_container_width=True):
+                st.info("📧 **Email**: hadirou.tamdamba@outlook.fr")
+        
+        # Call to action
+        st.markdown("---")
+        st.success("""
+        **🚀 Ready to Transform Your Business with AI?** 
+        
+        Whether you're in **Healthcare**, **Finance**, or **Technology**, I specialize in delivering 
+        end-to-end AI solutions that drive real business value. From initial strategy to production 
+        deployment on cloud platforms, let's discuss how cutting-edge AI can transform your operations.
+        
+        **Key Differentiators:**
+        - ✅ Industry-specific expertise across Healthcare, Finance & Enterprise
+        - ✅ Full-stack AI development with modern MLOps/DevOps practices  
+        - ✅ Multi-cloud proficiency (AWS, Azure, IBM Watson X)
+        - ✅ Production-ready solutions with enterprise-grade security
+        - ✅ Comprehensive team training and knowledge transfer
+        """)
+        
+        # Industries served
+        st.subheader("🎯 Domain Expertise & Applications")
+        
+        industries_tabs = st.tabs(["🏥 Healthcare & Research", "💰 Finance & Banking", "📊 Marketing & Business"])
+        
+        with industries_tabs[0]:
+            st.markdown("""
+            **Healthcare AI & Research Applications:**
+            - 🔬 **Wastewater-Based Epidemiology**: COVID-19 & Influenza tracking and prediction
+            - 🏥 **Medical Image Analysis**: Diagnostic AI for radiology and medical imaging
+            - 🦠 **Infectious Disease Modeling**: Respiratory viruses, HIV, and epidemic forecasting
+            - 💊 **Chronic Disease Research**: Diabetes, Heart Disease, Cancer analytics
+            - 📋 **Clinical Data Analysis**: Statistical Analysis Plans, Missing Data Handling
+            - 🧬 **Biostatistics**: Advanced statistical modeling for healthcare research
+            - 📊 **Epidemiological Studies**: Population health analytics and public health insights
+            """)
+        
+        with industries_tabs[1]:
+            st.markdown("""
+            **Financial Services & Banking AI:**
+            - 📊 **Credit Risk Assessment**: Advanced models for loan default prediction and risk scoring
+            - 🛡️ **Fraud Detection**: Real-time transaction monitoring and anomaly detection systems
+            - 💳 **Payment Analytics**: Financial transaction analysis and pattern recognition
+            - 🏦 **Banking Solutions**: Customer analytics and financial product optimization
+            - 💰 **Financial Forecasting**: Market prediction and economic modeling
+            """)
+        
+        with industries_tabs[2]:
+            st.markdown("""
+            **Marketing & Business Intelligence:**
+            - 🏠 **Real Estate Analytics**: Airbnb market analysis and price prediction (Europe)
+            - 🎯 **Recommendation Systems**: Personalized content and product recommendations
+            - 📱 **Customer Analytics**: Churn prediction and retention strategies (Telecommunications)
+            - 💬 **Social Media Intelligence**: Sentiment analysis and brand monitoring
+            - 📊 **Business Intelligence**: KPI dashboards and performance analytics  
+            - 🎪 **Marketing Optimization**: Campaign effectiveness and customer segmentation
+            - 📈 **Predictive Analytics**: Sales forecasting and demand prediction
+            """)
+        
+        # Project showcase with technical details
+        st.subheader("🔬 Technical Project Showcase")
+        st.markdown("""
+        This **Medical Imaging Diagnosis Agent** exemplifies my approach to building production-ready AI applications:
+        
+        **🏗️ Architecture & Engineering:**
+        - **Scalable Design**: Modular architecture with proper separation of concerns
+        - **Cloud Integration**: Google AI API integration with error handling and rate limiting  
+        - **Security**: Secure API key management and data handling protocols
+        - **User Experience**: Professional Streamlit interface with real-time feedback
+        - **DevOps Ready**: Containerizable deployment with comprehensive logging
+        
+        **🔧 Technical Implementation:**
+        - **Modern Python**: Type hints, proper error handling, and clean code principles
+        - **AI Integration**: Advanced prompt engineering for medical image analysis
+        - **Performance**: Optimized image processing with memory management
+        - **Monitoring**: Detailed logging and session state management
+        - **Extensibility**: Plugin-ready architecture for additional AI models
+        """)
+    
     def render_main_content(self):
-        """Enhanced main content rendering"""
+        """Enhanced main content rendering with page navigation"""
         try:
+            # Route to different pages based on session state
+            if st.session_state.current_page == "about":
+                self.render_about_page()
+                return
+            
+            # Main application content (default page)
             # Header
             st.title("🏥 Medical Imaging Diagnosis Agent")
             st.markdown("### Advanced AI-Powered Medical Image Analysis")
@@ -561,16 +1035,18 @@ class MedicalImagingApp:
             self.render_sidebar()
             self.render_main_content()
             
-            # Footer
-            st.markdown("---")
-            st.markdown(
-                "<div style='text-align: center; color: #666; font-size: 0.8em;'>"
-                "Medical Imaging Diagnosis Agent v1.0 | "
-                "For educational purposes only | "
-                "Always consult healthcare professionals"
-                "</div>",
-                unsafe_allow_html=True
-            )
+            # Footer (only show on main page)
+            if st.session_state.current_page == "main":
+                st.markdown("---")
+                st.markdown(
+                    "<div style='text-align: center; color: #666; font-size: 0.8em;'>"
+                    "Medical Imaging Diagnosis Agent v1.0 | "
+                    "Developed by <a href='https://www.linkedin.com/in/hadirou-tamdamba/' target='_blank'>Hadirou Tamdamba</a> | "
+                    "For educational purposes only | "
+                    "Always consult healthcare professionals"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
             
         except Exception as e:
             logger.error(f"Application runtime error: {traceback.format_exc()}")
