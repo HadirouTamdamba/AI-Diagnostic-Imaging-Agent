@@ -1,8 +1,11 @@
 # 🏥 Medical Imaging Diagnosis Agent
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-red.svg)](https://streamlit.io)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.47.0-red.svg)](https://streamlit.io)
 [![Google AI](https://img.shields.io/badge/Google%20AI-Gemini%202.0-orange.svg)](https://ai.google.dev)
+[![Agno](https://img.shields.io/badge/Agno-1.7.6-purple.svg)](https://docs.agno.dev)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![AWS](https://img.shields.io/badge/AWS-Compatible-232F3E.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
 An advanced AI-powered medical imaging analysis tool built with Streamlit and Google's Gemini 2.0 Flash model. This application addresses the critical challenge of providing rapid, accurate, and accessible medical image interpretation to bridge the gap between complex diagnostic imaging and clinical decision-making.
