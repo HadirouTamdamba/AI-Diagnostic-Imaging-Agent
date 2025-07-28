@@ -31,6 +31,28 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 5. **Research Integration**: Incorporating current medical literature and evidence-based insights
 6. **Quality Assurance**: Implementing robust validation and error handling mechanisms
 
+## 🎥 Application Demo
+
+<div align="center">
+  <img src="assets/Medical-Imaging-Diagnosis-Agent-app.gif" alt="Medical Imaging Diagnosis Agent Demo" width="800"/>
+  <p><em>Complete workflow demonstration: Upload → Analysis → Professional Report → Download reports</em></p>
+</div>
+  <p><em>👆 Click to watch full demo video</em></p>
+</div>
+
+
+### 🚀 Demo Highlights
+- 🔑 **API Setup** → Configure Google AI credentials
+- 📤 **Image Upload**: Drag & drop medical images (X-ray, MRI, CT, Ultrasound)
+- ⚡ **Real-time Analysis**: Watch AI process medical images in under 2 minutes
+- 📋 **Professional Reports**: Structured diagnostic output with clinical insights and confidence scores
+- 🎯 **User-Friendly Interface**: Intuitive design for medical professionals
+- 🔒 **Secure Processing**: Privacy-first approach with no data retention
+- 👥 **Patient Explanations**: Medical findings in accessible language
+- 📥 **Export Options**: Download reports in multiple formats
+
+---
+
 ### Technical Implementation Journey
 
 **Phase 1 - Problem Analysis & Architecture Design**
