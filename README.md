@@ -31,7 +31,6 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 5. **Research Integration**: Incorporating current medical literature and evidence-based insights
 6. **Quality Assurance**: Implementing robust validation and error handling mechanisms
 
-## 🎥 Application Demo
 
 ## 🎥 Application Demo
 <div align="center">
