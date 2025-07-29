@@ -34,9 +34,8 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 
 ## 🎥 Application Demo
 <div align="center">
-  <video src="assets/Medical-Imaging-Diagnosis-Agent-app.webm" controls muted loop width="800">
-  </video>
-  <p><em>Complete workflow demonstration: Upload → Analysis → Professional Report → Download reports</em></p>
+<img src="assets/Medical-Imaging-Diagnosis-Agent-app.gif" alt="Medical Imaging Diagnosis Agent Demo" width="800"/>
+<p><em>Complete workflow demonstration: Upload → Analysis → Professional Report → Download reports</em></p>
 </div>
 
 ### 🚀 Demo Highlights
