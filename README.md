@@ -186,4 +186,9 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Audit Logging**: Comprehensive activity logging for security monitoring
 - **Access Control**: User session management with proper authentication protocols
 
+### Medical Compliance Standards
+- **HIPAA Awareness**: Privacy protection protocols following healthcare data standards
+- **Clear Disclaimers**: Comprehensive usage limitations prominently displayed throughout interface
+- **Clinical Validation**: Not intended for direct clinical decision-making without professional oversight
+
 
