@@ -51,6 +51,33 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 
 ---
 
+## Supported Medical Imaging Modalities
+
+### 🦴 X-ray Imaging
+- **Chest X-rays**: Pulmonary pathology, cardiac silhouette analysis
+- **Skeletal Imaging**: Fracture detection, bone pathology assessment
+- **Dental Radiographs**: Oral health evaluation, dental pathology identification
+- **Extremity Films**: Joint analysis, soft tissue evaluation
+
+### 🧠 Magnetic Resonance Imaging (MRI)
+- **Brain MRI**: Neurological pathology, structural abnormalities
+- **Spine Imaging**: Vertebral assessment, disc pathology evaluation
+- **Joint MRI**: Musculoskeletal analysis, cartilage evaluation
+- **Contrast Studies**: Enhanced pathology visualization and characterization
+
+### 🫁 Computed Tomography (CT)
+- **Chest CT**: Pulmonary nodule detection, mediastinal evaluation
+- **Abdominal CT**: Organ pathology, tumor detection and staging
+- **Head CT**: Trauma assessment, intracranial pathology evaluation
+- **Contrast Enhanced**: Vascular studies, organ enhancement analysis
+
+### ❤️ Ultrasound Imaging
+- **Cardiac Echo**: Heart function assessment, valve evaluation
+- **Abdominal US**: Organ pathology, biliary system evaluation
+- **Obstetric Imaging**: Fetal development monitoring, pregnancy assessment
+- **Vascular Studies**: Blood flow analysis, vessel pathology detection
+
+---
 ### Technical Implementation Journey
 
 **Phase 1 - Problem Analysis & Architecture Design**
@@ -73,6 +100,7 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - Implemented Docker containerization for scalable deployment
 - Added performance monitoring and analytics capabilities
 
+---
 ## 🚀 Features & Capabilities
 
 ### Core Medical Analysis Features
@@ -98,6 +126,7 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Testing Framework**: Unit tests ensuring reliability and maintainability
 - **Container Ready**: Docker deployment with production-grade configuration
 
+---
 ## 🏗️ Architecture : Core Components Architecture
 
 ### 1. MedicalImagingAgent (`src/models/medical_agent.py`)
@@ -139,52 +168,7 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - `manage_session_state()`: Stateful user experience management
 - `audit_user_activity()`: Security logging and compliance tracking
 
-## Supported Medical Imaging Modalities
-
-### 🦴 X-ray Imaging
-- **Chest X-rays**: Pulmonary pathology, cardiac silhouette analysis
-- **Skeletal Imaging**: Fracture detection, bone pathology assessment
-- **Dental Radiographs**: Oral health evaluation, dental pathology identification
-- **Extremity Films**: Joint analysis, soft tissue evaluation
-
-### 🧠 Magnetic Resonance Imaging (MRI)
-- **Brain MRI**: Neurological pathology, structural abnormalities
-- **Spine Imaging**: Vertebral assessment, disc pathology evaluation
-- **Joint MRI**: Musculoskeletal analysis, cartilage evaluation
-- **Contrast Studies**: Enhanced pathology visualization and characterization
-
-### 🫁 Computed Tomography (CT)
-- **Chest CT**: Pulmonary nodule detection, mediastinal evaluation
-- **Abdominal CT**: Organ pathology, tumor detection and staging
-- **Head CT**: Trauma assessment, intracranial pathology evaluation
-- **Contrast Enhanced**: Vascular studies, organ enhancement analysis
-
-### ❤️ Ultrasound Imaging
-- **Cardiac Echo**: Heart function assessment, valve evaluation
-- **Abdominal US**: Organ pathology, biliary system evaluation
-- **Obstetric Imaging**: Fetal development monitoring, pregnancy assessment
-- **Vascular Studies**: Blood flow analysis, vessel pathology detection
-
-## Analysis Components & Features
-
-### 📋 Structured Medical Reporting
-- **Technical Assessment**: Image quality, acquisition parameters, optimization recommendations
-- **Systematic Analysis**: Anatomical region evaluation following radiological protocols
-- **Pathology Detection**: Abnormality identification with confidence scoring
-- **Differential Diagnosis**: Multiple diagnostic considerations with probability ranking
-- **Clinical Correlation**: Integration with patient history and clinical context
-
-### 🔍 Advanced AI Features
-- **Pattern Recognition**: Advanced deep learning for subtle pathology detection
-- **Comparative Analysis**: Historical comparison capabilities for disease progression
-- **Quantitative Measurements**: Automated measurements with clinical significance
-- **Risk Stratification**: Pathology severity assessment and clinical priority scoring
-
-### 👥 Patient Communication Tools
-- **Simplified Explanations**: Medical terminology translation for patient understanding
-- **Visual Annotations**: Highlighted findings with descriptive explanations
-- **Educational Resources**: Related health information and care recommendations
-- **Follow-up Guidance**: Suggested next steps and specialist referral recommendations
+---
 
 ## 🔒 Security, Privacy & Compliance
 
@@ -194,5 +178,6 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Encrypted Communication**: End-to-end encryption for all API communications with Google AI
 - **Session Security**: Secure state management with automatic timeout mechanisms
 - **Privacy by Design**: No personal health information retention or logging
+
 
 
