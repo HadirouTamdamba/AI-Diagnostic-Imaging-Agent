@@ -193,6 +193,20 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 
 
 ---
+### Commercial Use & Monetization
+
+**Please Note:** While the Apache License 2.0 typically permits commercial use, this project is made available under a **dual-licensing model** to support its continued development and allow for future monetization.
+
+**Commercial use of this software, its components, or any derived works, requires a separate commercial license.** This includes, but is not limited to, using the software in:
+* Products or services that are sold or offered for a fee.
+* Internal tools for for-profit entities where the software directly contributes to commercial operations.
+
+**For inquiries regarding commercial licensing, custom solutions, or enterprise support, please contact Hadirou Tamdamba at hadirou.tamdamba@outlook.fr**
+
+
+
+
+---
 
 *This Medical Imaging Diagnosis Agent demonstrates the intersection of advanced AI technology and healthcare innovation. Every line of code, architectural decision, and user interface element reflects a commitment to technical excellence, clinical utility, and responsible AI development*
 
