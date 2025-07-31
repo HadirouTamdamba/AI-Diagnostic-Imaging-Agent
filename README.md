@@ -78,7 +78,7 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Vascular Studies**: Blood flow analysis, vessel pathology detection
 
 ---
-### Technical Implementation Journey
+### ⚙️ Technical Implementation Journey
 
 **Phase 1 - Problem Analysis & Architecture Design**
 - Conducted comprehensive analysis of medical imaging workflow challenges
