@@ -97,3 +97,45 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Documentation**: Extensive inline documentation and architectural guides
 - **Testing Framework**: Unit tests ensuring reliability and maintainability
 - **Container Ready**: Docker deployment with production-grade configuration
+
+## 🏗️ Architecture : Core Components Architecture
+
+### 1. MedicalImagingAgent (`src/models/medical_agent.py`)
+**Primary Responsibilities:**
+- Google Gemini 2.0 Flash model initialization and management
+- Advanced medical image analysis workflow orchestration
+- Structured diagnostic report generation with medical accuracy
+- Error handling and retry mechanisms for robust AI communication
+- Integration with medical literature databases for evidence-based insights
+
+**Key Methods:**
+- `analyze_image()`: Core analysis method with comprehensive error handling
+- `generate_structured_report()`: Professional medical report formatting
+- `validate_analysis()`: Quality assurance for diagnostic accuracy
+
+### 2. ImageProcessor (`src/utils/image_processor.py`)
+**Primary Responsibilities:**
+- Medical image validation against clinical standards
+- Advanced image optimization using PIL with medical-grade algorithms
+- Secure temporary file management with automatic cleanup
+- Format conversion and standardization for AI processing
+- Memory-efficient processing for large medical image files
+
+**Key Methods:**
+- `optimize_for_analysis()`: Medical image enhancement and preparation
+- `validate_medical_image()`: Clinical image quality assessment
+- `secure_cleanup()`: HIPAA-compliant temporary file management
+
+### 3. SessionValidator (`src/utils/validators.py`)
+**Primary Responsibilities:**
+- Comprehensive API key validation with Google AI services
+- Secure session state management for multi-user environments
+- Analysis history persistence with privacy protection
+- Input sanitization and security validation
+- User authentication and authorization management
+
+**Key Methods:**
+- `validate_api_key()`: Secure API authentication verification
+- `manage_session_state()`: Stateful user experience management
+- `audit_user_activity()`: Security logging and compliance tracking
+
