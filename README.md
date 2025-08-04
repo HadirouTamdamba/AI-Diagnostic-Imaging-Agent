@@ -101,6 +101,12 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - Added performance monitoring and analytics capabilities
 
 ---
+### API Requirements
+- **Google AI Studio API Key**: [Obtain free key here](https://aistudio.google.com/apikey)
+- **Daily Quota**: 1,500 free requests per day with Google's generous free tier
+- **Rate Limits**: Automatic handling with intelligent retry mechanisms
+
+---
 ## 🚀 Features & Capabilities
 
 ### Core Medical Analysis Features
