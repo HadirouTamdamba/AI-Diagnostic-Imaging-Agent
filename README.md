@@ -221,6 +221,13 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 - **Load Testing**: Validated performance under high concurrent user scenarios
 
 ---
+## 📚 Research Foundation & References
+
+This AI Medical Imaging Diagnosis Agent is built upon cutting-edge research in Artificial Intelligence for healthcare, incorporating the latest advancements in medical imaging analysis and diagnostic support systems.
+
+
+
+---
 ### Commercial Use & Monetization
 
 **Please Note:** While the Apache License 2.0 typically permits commercial use, this project is made available under a **dual-licensing model** to support its continued development and allow for future monetization.
