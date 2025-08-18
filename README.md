@@ -225,6 +225,27 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 
 This AI Medical Imaging Diagnosis Agent is built upon cutting-edge research in Artificial Intelligence for healthcare, incorporating the latest advancements in medical imaging analysis and diagnostic support systems.
 
+### Scientific References
+
+1. **AI Agents for Medical Image Analysis**: [RapidInnovation - AI Agents for Medical Image Analysis](https://www.rapidinnovation.io/post/ai-agents-for-medical-image-analysis)
+
+2. **Diagnostic Imaging Revolution**: [ScienceDirect - AI in Diagnostic Imaging](https://www.sciencedirect.com/science/article/pii/S2666990024000132)
+
+3. **Healthcare Analytics Tools**: [Factspan - Top AI Medical Imaging Tools for Healthcare Analytics 2024](https://factspan.medium.com/top-ai-medical-imaging-tools-for-healthcare-analytics-2024-acb403175b22)
+
+4. **CLAIM 2024 Guidelines**: [NCBI PMC - Checklist for Artificial Intelligence in Medical Imaging (CLAIM): 2024 Update](https://pmc.ncbi.nlm.nih.gov/articles/PMC11304031/)
+
+5. **Medical Imaging Breakthroughs**: [Collective Minds Health - Medical Imaging Research: 2024 Breakthroughs](https://collectiveminds.health/articles/medical-imaging-research-breakthroughs-in-ai-and-advanced-technologies)
+
+6. **Best Practices Framework**: [PubMed - Best Practices for AI and ML in Medical Imaging](https://pubmed.ncbi.nlm.nih.gov/37925095/)
+
+7. **Healthcare Analytics Transformation**: [Factspan - AI Medical Imaging Tools Transforming Healthcare 2025](https://www.factspan.com/blogs/ai-medical-imaging-tools-transforming-healthcare-analytics-in-2025/)
+
+8. **Innovation Survey**: [NCBI PMC - AI Shaping Medical Imaging Technology](https://pmc.ncbi.nlm.nih.gov/articles/PMC10740686/)
+
+9. **CLAIM Update Standards**: [RSNA - Checklist for AI in Medical Imaging 2024](https://pubs.rsna.org/doi/full/10.1148/ryai.240300)
+
+10. **Technology Review**: [NCBI PMC - AI and ML for Medical Imaging Technology Review](https://pmc.ncbi.nlm.nih.gov/articles/PMC8184621/)
 
 
 ---
