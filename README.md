@@ -257,6 +257,14 @@ Our development approach integrates these research findings through:
 - **Clinical Relevance**: Research insights maintain focus on real-world clinical utility
 
 ---
+### External Resources
+- **Google AI Documentation**: [Google AI Studio Documentation](https://ai.google.dev/docs)
+- **Streamlit Framework**: [Streamlit Documentation and Tutorials](https://docs.streamlit.io)
+- **Medical AI Guidelines**: [CLAIM 2024 Update Guidelines](https://pubs.rsna.org/doi/full/10.1148/ryai.240300)
+- **Healthcare AI Ethics**: [Responsible AI in Healthcare Resources](https://www.who.int/publications/i/item/ethics-and-governance-of-artificial-intelligence-for-health)
+
+---
+
 ### Commercial Use & Monetization
 
 **Please Note:** While the Apache License 2.0 typically permits commercial use, this project is made available under a **dual-licensing model** to support its continued development and allow for future monetization.
