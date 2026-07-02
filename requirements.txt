@@ -8,6 +8,7 @@ streamlit==1.47.0
 
 # **Google Generative AI**: Gemini API for medical image analysis
 google-generativeai==0.8.5
+google-genai>=1.30.0
 
 # **Agno**: AI agent framework with integrated tools
 agno==1.7.6
