@@ -1,0 +1,21 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear (likely bugs)
+    "UP",  # pyupgrade (modern Python idioms)
+]
+ignore = [
+    "E501",  # line length handled pragmatically for prompts/UI strings
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["src/app.py"]  # Streamlit UI layer, covered by the Docker smoke test

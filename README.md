@@ -88,12 +88,32 @@ The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md
 3. Click **Analyze Image** and wait 30–120 s
 4. Review the structured report and download it as Markdown
 
-### Run tests
+### Configuration (environment variables)
+
+All variables are optional and can be set in `.env` (see [.env.example](.env.example)):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOOGLE_API_KEY` | — | Google AI Studio key (otherwise entered in the sidebar) |
+| `MODEL_ID` | `gemini-2.0-flash` | Gemini model used for analysis |
+| `MAX_IMAGE_SIZE` | `5242880` | Max upload size in bytes (5 MB) |
+| `MAX_ANALYSIS_TIME` | `120` | Analysis timeout displayed to users (s) |
+| `LOG_LEVEL` | `INFO` | Application log verbosity |
+
+### Run tests & quality checks
 
 ```bash
 pip install -r requirements-dev.txt
-pytest tests/ -v
+pytest tests/ -v --cov=src          # unit tests + coverage
+ruff check src/ tests/              # lint
+
+# Optional: enable git hooks (lint + hygiene on every commit)
+pip install pre-commit && pre-commit install
 ```
+
+CI (GitHub Actions) runs lint, tests, a dependency security audit (`pip-audit`) and a
+Docker build + healthcheck smoke test on every push. Tagging a release (`git tag v1.1.0 && git push --tags`)
+automatically publishes the Docker image to GitHub Container Registry.
 
 ---
 
