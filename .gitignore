@@ -1,1 +1,27 @@
+# Secrets
 .env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Logs & temp
+*.log
+medimg_*.png
+temp_optimized_image.png
+
+# Tests & tooling
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

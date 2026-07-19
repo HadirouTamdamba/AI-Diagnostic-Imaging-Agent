@@ -51,6 +51,52 @@ This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solutio
 
 ---
 
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.10+ (3.12 recommended) **or** Docker
+- A free [Google AI Studio API key](https://aistudio.google.com/apikey)
+
+### Option 1 — Local (Python)
+
+```bash
+git clone https://github.com/HadirouTamdamba/AI-Diagnostic-Imaging-Agent.git
+cd AI-Diagnostic-Imaging-Agent
+
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+cp .env.example .env             # then set GOOGLE_API_KEY in .env (optional)
+streamlit run src/app.py
+```
+
+Open http://localhost:8501. If `GOOGLE_API_KEY` is not set in `.env`, enter it in the sidebar.
+
+### Option 2 — Docker (recommended for deployment)
+
+```bash
+cp .env.example .env             # set GOOGLE_API_KEY in .env
+docker compose up --build -d
+```
+
+The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md) for Streamlit Community Cloud and production deployment details.
+
+### Usage
+1. Enter your Google API key (sidebar) if not pre-configured
+2. Upload a medical image (JPG/PNG, max 5 MB)
+3. Click **Analyze Image** and wait 30–120 s
+4. Review the structured report and download it as Markdown
+
+### Run tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
+```
+
+---
+
 ## Supported Medical Imaging Modalities
 
 ### 🦴 X-ray Imaging
