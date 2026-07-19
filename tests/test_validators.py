@@ -28,8 +28,13 @@ class TestApiKeyValidation:
         assert result["valid"] is False
         assert "format" in result["error"]
 
-    def test_valid_key_accepted(self):
+    def test_legacy_aiza_key_accepted(self):
         result = self.validator.validate_api_key("AIza" + "x" * 35)
+        assert result["valid"] is True
+
+    def test_new_auth_key_accepted(self):
+        # 2026 Google AI Studio "auth keys" start with "AQ."
+        result = self.validator.validate_api_key("AQ.Ab8" + "x" * 40)
         assert result["valid"] is True
 
     def test_placeholder_rejected(self):
