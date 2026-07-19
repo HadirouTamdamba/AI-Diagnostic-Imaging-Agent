@@ -1,6 +1,7 @@
 """
 Medical imaging analysis agent with enhanced capabilities
 """
+import json
 import logging
 import time
 from typing import Any
@@ -11,6 +12,17 @@ from agno.models.google import Gemini
 from agno.tools.duckduckgo import DuckDuckGoTools
 
 logger = logging.getLogger(__name__)
+
+
+class ProviderResponseError(Exception):
+    """Raised when the model returns a provider error payload as its content
+    instead of raising (observed with agno 2.x on transient 5xx). Carries the
+    HTTP status code so retry/formatting logic treats it like a real API error.
+    """
+
+    def __init__(self, message: str, status_code: int | None = None):
+        super().__init__(message)
+        self.status_code = status_code
 
 # Substrings identifying transient API errors worth retrying (rate limits, overload, network)
 TRANSIENT_ERROR_MARKERS = (
@@ -56,8 +68,8 @@ class MedicalImagingAgent:
                 ),
                 tools=[DuckDuckGoTools()],
                 markdown=True,
-                show_tool_calls=True,
-                debug_mode=False
+                debug_mode=False,
+                telemetry=False,  # do not phone home from a medical app
             )
         except Exception as e:
             logger.error(f"Failed to initialize agent: {e}")
@@ -136,18 +148,47 @@ Format your response with clear markdown headers, bullet points, and professiona
 
     @staticmethod
     def _extract_token_usage(response: Any) -> dict[str, int]:
-        """Extract token usage from an Agno response for observability (best effort)"""
+        """Extract token usage from an Agno response for observability (best effort).
+
+        Handles both the agno 2.x ``RunMetrics`` object (int attributes) and the
+        older dict-with-lists shape, without ever failing the analysis.
+        """
         usage = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
+        metrics = getattr(response, "metrics", None)
+        if metrics is None:
+            return usage
         try:
-            metrics = getattr(response, "metrics", None) or {}
             for key in usage:
-                value = metrics.get(key, 0)
-                usage[key] = int(sum(value) if isinstance(value, (list, tuple)) else value)
+                if isinstance(metrics, dict):
+                    value = metrics.get(key, 0)
+                else:  # RunMetrics or similar object
+                    value = getattr(metrics, key, 0)
+                usage[key] = int(sum(value) if isinstance(value, (list, tuple)) else (value or 0))
             if not usage["total_tokens"]:
                 usage["total_tokens"] = usage["input_tokens"] + usage["output_tokens"]
         except Exception:  # metrics format varies across agno versions; never fail the analysis
             pass
         return usage
+
+    @staticmethod
+    def _error_payload_in_content(content: Any) -> tuple[int, str] | None:
+        """Detect a provider error JSON returned as the response content.
+
+        agno 2.x sometimes places a transient provider error (e.g. 503) in
+        ``content`` instead of raising. Returns (code, message) if detected.
+        """
+        text = (content or "")
+        text = text.strip() if isinstance(text, str) else ""
+        if not (text.startswith("{") and '"error"' in text and '"code"' in text):
+            return None
+        try:
+            error = (json.loads(text).get("error") or {})
+            code = error.get("code")
+            if code:
+                return int(code), str(error.get("message") or "Provider error")
+        except (ValueError, TypeError):
+            pass
+        return None
 
     def analyze_image(self, image: AgnoImage, custom_prompt: str | None = None) -> dict[str, Any]:
         """Analyze medical image with retry on transient errors and token telemetry"""
@@ -158,6 +199,14 @@ Format your response with clear markdown headers, bullet points, and professiona
         for attempt in range(1, self.max_retries + 1):
             try:
                 response = self.agent.run(prompt, images=[image])
+
+                # agno 2.x may return a transient provider error as content
+                # instead of raising; route it through the retry/format logic.
+                payload = self._error_payload_in_content(getattr(response, "content", None))
+                if payload is not None:
+                    code, msg = payload
+                    raise ProviderResponseError(msg, status_code=code)
+
                 analysis_time = time.time() - start_time
                 token_usage = self._extract_token_usage(response)
 
