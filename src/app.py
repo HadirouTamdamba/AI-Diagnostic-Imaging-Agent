@@ -5,7 +5,6 @@ import logging
 import sys
 import os
 from pathlib import Path
-from typing import Optional
 import time
 import traceback
 import warnings
@@ -1053,7 +1052,7 @@ class MedicalImagingApp:
                     unsafe_allow_html=True
                 )
             
-        except Exception as e:
+        except Exception:
             logger.error(f"Application runtime error: {traceback.format_exc()}")
             st.error("Critical application error occurred. Please refresh the page.")
             

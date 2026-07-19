@@ -3,8 +3,7 @@ Validation utilities for session management and data integrity
 """
 import streamlit as st
 import logging
-from typing import Dict, Any, Optional
-import time
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
