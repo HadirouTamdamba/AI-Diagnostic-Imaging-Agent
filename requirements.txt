@@ -1,12 +1,12 @@
 # Medical Imaging Diagnosis Agent - production dependencies
 
 # Core application
-streamlit==1.47.0
+streamlit==1.59.2
 agno==1.7.6
 
 # Google Gemini API
 google-genai>=1.30.0
-google-generativeai==0.8.5
+google-generativeai==0.8.6
 
 # Web search tool (Agno DuckDuckGoTools)
 ddgs>=4.0.0
