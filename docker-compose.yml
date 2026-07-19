@@ -6,7 +6,9 @@ services:
     ports:
       - "8501:8501"
     env_file:
-      - .env
+      # Optional: without .env the API key can still be entered in the sidebar
+      - path: .env
+        required: false
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     restart: unless-stopped
