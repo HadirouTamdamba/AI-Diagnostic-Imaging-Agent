@@ -53,9 +53,9 @@ except Exception as e:
 
 
 @st.cache_resource(show_spinner=False)
-def get_agent(api_key: str, model_id: str) -> MedicalImagingAgent:
+def get_agent(api_key: str, model_id: str, enable_web_search: bool) -> MedicalImagingAgent:
     """Cache the agent across Streamlit reruns to avoid re-initializing the Gemini client"""
-    return MedicalImagingAgent(api_key, model_id=model_id)
+    return MedicalImagingAgent(api_key, model_id=model_id, enable_web_search=enable_web_search)
 
 
 class MedicalImagingApp:
@@ -115,7 +115,8 @@ class MedicalImagingApp:
                 "current_analysis": None,
                 "app_initialized": True,
                 "error_count": 0,
-                "current_page": "main"  # Add page navigation
+                "current_page": "main",  # Add page navigation
+                "enable_web_search": settings.enable_web_search,
             }
 
             for key, default_value in session_defaults.items():
@@ -142,6 +143,11 @@ class MedicalImagingApp:
 
                 # API Key Configuration Section
                 self._render_api_config()
+
+                st.divider()
+
+                # Analysis Options (web search toggle)
+                self._render_analysis_options()
 
                 st.divider()
 
@@ -174,12 +180,12 @@ class MedicalImagingApp:
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("🏠 Home", use_container_width=True):
+            if st.button("🏠 Home", width='stretch'):
                 st.session_state.current_page = "main"
                 st.rerun()
 
         with col2:
-            if st.button("👨‍💻 About", use_container_width=True):
+            if st.button("👨‍💻 About", width='stretch'):
                 st.session_state.current_page = "about"
                 st.rerun()
 
@@ -229,6 +235,27 @@ class MedicalImagingApp:
             st.error(f"API key validation failed: {e}")
             return False
 
+    def _render_analysis_options(self):
+        """Render analysis options: live web search toggle."""
+        st.subheader("🔎 Analysis Options")
+        enabled = st.toggle(
+            "Live web search (references)",
+            value=st.session_state.get("enable_web_search", True),
+            help=(
+                "ON: the agent searches DuckDuckGo for live medical references "
+                "(richer report, but several API requests per analysis). "
+                "OFF: one request per analysis — best to conserve the free-tier "
+                "daily quota; references come from the model's knowledge."
+            ),
+        )
+        if enabled != st.session_state.get("enable_web_search"):
+            st.session_state.enable_web_search = enabled
+            st.rerun()
+        st.caption(
+            "🌐 Live references ON" if enabled
+            else "⚡ Quota-saver mode (1 request/analysis)"
+        )
+
     def _render_app_info(self):
         """Render application information"""
         st.subheader("ℹ️ Application Info")
@@ -256,7 +283,10 @@ class MedicalImagingApp:
         st.subheader("🤖 Model Status")
         try:
             # Cached agent (no re-initialization on every rerun)
-            agent = get_agent(st.session_state.GOOGLE_API_KEY, settings.model_id)
+            agent = get_agent(
+                st.session_state.GOOGLE_API_KEY, settings.model_id,
+                st.session_state.enable_web_search,
+            )
             agent_info = agent.get_agent_info()
 
             st.success("🟢 Model Ready")
@@ -659,18 +689,18 @@ class MedicalImagingApp:
             st.link_button(
                 "💼 LinkedIn Profile",
                 "https://www.linkedin.com/in/hadirou-tamdamba/",
-                use_container_width=True
+                width='stretch'
             )
 
         with col2:
             st.link_button(
                 "🔗 GitHub Portfolio",
                 "https://github.com/HadirouTamdamba",
-                use_container_width=True
+                width='stretch'
             )
 
         with col3:
-            if st.button("📧 Email Contact", use_container_width=True):
+            if st.button("📧 Email Contact", width='stretch'):
                 st.info("📧 **Email**: hadirou.tamdamba@outlook.fr")
 
         # Call to action
@@ -875,7 +905,7 @@ class MedicalImagingApp:
             st.image(
                 optimized_image,
                 caption=f"Optimized: {optimized_image.size[0]}×{optimized_image.size[1]}px",
-                use_container_width=True
+                width='stretch'
             )
 
             # Image metadata
@@ -887,7 +917,8 @@ class MedicalImagingApp:
                     st.write(f"**Size**: {file_size_kb:.1f} KB")
                 with col2:
                     st.write(f"**Dimensions**: {optimized_image.size[0]}×{optimized_image.size[1]}px")
-                    st.write(f"**Format**: {optimized_image.format}")
+                    # In-memory optimized image has no .format; it is saved as PNG
+                    st.write(f"**Format**: {optimized_image.format or 'PNG (optimized)'}")
 
         except Exception as e:
             logger.error(f"Image preview failed: {e}")
@@ -896,7 +927,7 @@ class MedicalImagingApp:
     def _display_analysis_section(self, uploaded_file):
         """Display analysis section with enhanced controls"""
         # Analysis button
-        if st.button("🔍 Analyze Image", type="primary", use_container_width=True):
+        if st.button("🔍 Analyze Image", type="primary", width='stretch'):
             if hasattr(st.session_state, 'temp_image_path'):
                 self._perform_analysis(st.session_state.temp_image_path, uploaded_file.name)
             else:
@@ -931,7 +962,10 @@ class MedicalImagingApp:
             status_text.text("🤖 Initializing AI agent...")
             progress_bar.progress(20)
 
-            agent = get_agent(st.session_state.GOOGLE_API_KEY, settings.model_id)
+            agent = get_agent(
+                st.session_state.GOOGLE_API_KEY, settings.model_id,
+                st.session_state.enable_web_search,
+            )
 
             # Step 2: Prepare image
             status_text.text("🖼️ Preparing image for analysis...")
@@ -1027,17 +1061,17 @@ class MedicalImagingApp:
                     data=result["content"],
                     file_name=report_filename,
                     mime="text/markdown",
-                    use_container_width=True
+                    width='stretch'
                 )
 
             with col2:
                 # Share analysis (copy to clipboard simulation)
-                if st.button("📋 Copy Report", use_container_width=True):
+                if st.button("📋 Copy Report", width='stretch'):
                     st.success("Report copied to clipboard! (use Ctrl+C)")
 
             with col3:
                 # Start new analysis
-                if st.button("🔄 New Analysis", use_container_width=True):
+                if st.button("🔄 New Analysis", width='stretch'):
                     st.session_state.current_analysis = None
                     st.rerun()
 

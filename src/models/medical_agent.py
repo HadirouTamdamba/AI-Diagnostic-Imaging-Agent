@@ -34,6 +34,9 @@ TRANSIENT_ERROR_MARKERS = (
 # HTTP status codes that are safe to retry (server-side / throttling)
 TRANSIENT_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
 
+# Markers identifying a per-DAY free-tier quota (won't recover within a retry window)
+DAILY_QUOTA_MARKERS = ("perday", "per day", "free_tier", "freetier", "free-tier")
+
 # Actionable messages by HTTP status. The provider SDK (agno) hides the raw
 # error body, so we map the status code to a message the user can act on.
 STATUS_HINTS = {
@@ -51,22 +54,30 @@ class MedicalImagingAgent:
     """Enhanced medical imaging analysis agent"""
 
     def __init__(self, api_key: str, model_id: str = "gemini-flash-latest",
-                 max_retries: int = 3, retry_base_delay: float = 2.0):
+                 max_retries: int = 3, retry_base_delay: float = 2.0,
+                 enable_web_search: bool = True):
         self.api_key = api_key
         self.model_id = model_id
         self.max_retries = max_retries
         self.retry_base_delay = retry_base_delay
+        self.enable_web_search = enable_web_search
         self.agent = self._initialize_agent()
 
     def _initialize_agent(self) -> Agent:
-        """Initialize the Gemini agent with tools"""
+        """Initialize the Gemini agent, optionally with the web-search tool.
+
+        Web search adds live medical references but costs extra API round-trips
+        (each tool call is another request), so it can be disabled to conserve
+        the Gemini free-tier daily quota.
+        """
         try:
+            tools = [DuckDuckGoTools()] if self.enable_web_search else []
             return Agent(
                 model=Gemini(
                     id=self.model_id,
                     api_key=self.api_key
                 ),
-                tools=[DuckDuckGoTools()],
+                tools=tools,
                 markdown=True,
                 debug_mode=False,
                 telemetry=False,  # do not phone home from a medical app
@@ -76,8 +87,27 @@ class MedicalImagingAgent:
             raise
 
     def get_analysis_prompt(self) -> str:
-        """Enhanced analysis prompt with structured output"""
-        return """
+        """Enhanced analysis prompt with structured output.
+
+        Section 5 adapts to whether the web-search tool is available so the model
+        is not asked to call a tool that is not registered.
+        """
+        if self.enable_web_search:
+            research_section = """### 5. 📚 Research Context & References
+**Important**: Use the DuckDuckGo search tool to find:
+- Recent medical literature on similar cases
+- Current treatment protocols and guidelines
+- Relevant technological advances in imaging
+- Patient education resources
+
+Provide 2-3 authoritative medical references with brief summaries."""
+        else:
+            research_section = """### 5. 📚 Research Context & References
+Based on your medical knowledge, provide 2-3 authoritative references
+(clinical guidelines, key literature) with brief summaries. Note that these
+are from training knowledge and should be verified against current sources."""
+
+        return f"""
 You are a highly skilled medical imaging expert with extensive knowledge in radiology and diagnostic imaging.
 Analyze the provided medical image with the following structured approach:
 
@@ -105,14 +135,7 @@ Analyze the provided medical image with the following structured approach:
 - **Common Concerns**: Address typical patient questions about these findings
 - **Next Steps**: General guidance on typical follow-up procedures
 
-### 5. 📚 Research Context & References
-**Important**: Use the DuckDuckGo search tool to find:
-- Recent medical literature on similar cases
-- Current treatment protocols and guidelines
-- Relevant technological advances in imaging
-- Patient education resources
-
-Provide 2-3 authoritative medical references with brief summaries.
+{research_section}
 
 ### 6. ⚠️ Limitations & Recommendations
 - **Analysis Limitations**: Acknowledge any constraints of AI analysis
@@ -123,12 +146,24 @@ Format your response with clear markdown headers, bullet points, and professiona
 """
 
     @staticmethod
+    def _is_daily_quota_error(error: Exception) -> bool:
+        """True for a per-day free-tier 429, which won't recover within a retry window."""
+        if getattr(error, "status_code", None) != 429:
+            return False
+        message = str(error).lower()
+        return any(marker in message for marker in DAILY_QUOTA_MARKERS)
+
+    @staticmethod
     def _is_transient_error(error: Exception) -> bool:
         """Detect retryable API errors via HTTP status code, then message markers.
 
         The status code is the reliable signal: agno's ModelProviderError exposes
         ``status_code`` but hides the message behind an opaque ``<Response [...]>``.
+        A per-day quota 429 is treated as non-transient — retrying in seconds is
+        pointless since the daily allowance only resets at midnight Pacific.
         """
+        if MedicalImagingAgent._is_daily_quota_error(error):
+            return False
         status = getattr(error, "status_code", None)
         if status in TRANSIENT_STATUS_CODES:
             return True
@@ -140,6 +175,11 @@ Format your response with clear markdown headers, bullet points, and professiona
     @staticmethod
     def _format_error(error: Exception) -> str:
         """Turn an opaque provider error into an actionable message using its status code."""
+        if MedicalImagingAgent._is_daily_quota_error(error):
+            return ("Daily free-tier quota exhausted for this model. It resets at midnight "
+                    "Pacific Time. To keep testing now, enable billing in Google AI Studio "
+                    "for higher limits, or disable web search (fewer requests per analysis). "
+                    "(HTTP 429)")
         status = getattr(error, "status_code", None)
         hint = STATUS_HINTS.get(status)
         if hint:
@@ -253,7 +293,8 @@ Format your response with clear markdown headers, bullet points, and professiona
         """Get information about the agent configuration"""
         return {
             "model_id": self.model_id,
-            "tools": ["DuckDuckGo Search"],
+            "tools": ["DuckDuckGo Search"] if self.enable_web_search else [],
+            "web_search": self.enable_web_search,
             "capabilities": [
                 "Medical Image Analysis",
                 "Radiology Report Generation",
