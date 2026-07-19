@@ -2,15 +2,13 @@
 
 # Core application
 streamlit==1.59.2
-agno==1.7.6
+agno==2.7.4
 
 # Google Gemini API
 google-genai>=1.30.0
-google-generativeai==0.8.6
 
 # Web search tool (Agno DuckDuckGoTools)
 ddgs>=9.14.4
-duckduckgo-search>=8.1.1
 
 # Image processing
 Pillow>=12.3.0,<13.0.0

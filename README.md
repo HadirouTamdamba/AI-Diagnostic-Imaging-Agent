@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.47.0-red.svg)](https://streamlit.io)
 [![Google AI](https://img.shields.io/badge/Google%20AI-Gemini%20Flash-orange.svg)](https://ai.google.dev)
-[![Agno](https://img.shields.io/badge/Agno-1.7.6-purple.svg)](https://docs.agno.dev)
+[![Agno](https://img.shields.io/badge/Agno-2.7.4-purple.svg)](https://docs.agno.dev)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![AWS](https://img.shields.io/badge/AWS-Compatible-232F3E.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)

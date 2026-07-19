@@ -118,6 +118,33 @@ class TestTransientErrorDetection:
         assert MedicalImagingAgent._is_transient_error(bad_key) is False
 
 
+class TestErrorPayloadInContent:
+
+    def test_503_error_json_content_is_retried(self, mocked_agent):
+        # agno 2.x can return a transient 503 as content without raising
+        err_json = '{"error": {"code": 503, "message": "high demand", "status": "UNAVAILABLE"}}'
+        mocked_agent.agent.run.return_value = make_response(content=err_json)
+
+        result = mocked_agent.analyze_image(MagicMock())
+
+        assert result["success"] is False
+        assert result["status_code"] == 503
+        # 503 is transient -> retried up to max_retries
+        assert mocked_agent.agent.run.call_count == mocked_agent.max_retries
+
+    def test_normal_report_content_not_flagged(self, mocked_agent):
+        mocked_agent.agent.run.return_value = make_response(content="### 1. Findings\nNormal study.")
+
+        result = mocked_agent.analyze_image(MagicMock())
+
+        assert result["success"] is True
+        assert result["content"].startswith("### 1. Findings")
+
+    def test_detector_ignores_plain_json_without_error(self):
+        assert MedicalImagingAgent._error_payload_in_content('{"result": "ok"}') is None
+        assert MedicalImagingAgent._error_payload_in_content("Normal report") is None
+
+
 class TestErrorFormatting:
 
     def test_400_gives_api_key_hint(self):
