@@ -13,7 +13,7 @@ ddgs>=9.14.4
 duckduckgo-search>=8.1.1
 
 # Image processing
-Pillow>=10.4.0,<12.0.0
+Pillow>=12.3.0,<13.0.0
 numpy>=2.5.1,<3.0.0
 
 # Configuration & validation
