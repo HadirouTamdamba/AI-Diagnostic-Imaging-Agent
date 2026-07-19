@@ -174,6 +174,56 @@ class TestErrorFormatting:
         assert "AIza" in result["error"]
 
 
+class TestDailyQuota:
+
+    def test_daily_quota_429_not_retried(self, mocked_agent):
+        # Per-day free-tier quota won't recover in seconds -> fail fast, no retries
+        err = Exception(
+            "429 RESOURCE_EXHAUSTED quotaId GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+        )
+        err.status_code = 429
+        mocked_agent.agent.run.side_effect = err
+
+        result = mocked_agent.analyze_image(MagicMock())
+
+        assert result["success"] is False
+        assert result["attempts"] == 1
+        assert mocked_agent.agent.run.call_count == 1
+        assert "Daily free-tier quota" in result["error"]
+
+    def test_per_minute_429_still_retried(self, mocked_agent):
+        # A rate-limit 429 without a per-day marker should still retry
+        err = Exception("429 Too Many Requests")
+        err.status_code = 429
+        mocked_agent.agent.run.side_effect = err
+
+        result = mocked_agent.analyze_image(MagicMock())
+
+        assert result["success"] is False
+        assert mocked_agent.agent.run.call_count == mocked_agent.max_retries
+
+
+class TestWebSearchToggle:
+
+    def _agent(self, enable):
+        with patch("src.models.medical_agent.Agent") as agent_cls, \
+             patch("src.models.medical_agent.Gemini"), \
+             patch("src.models.medical_agent.DuckDuckGoTools"):
+            agent_cls.return_value = MagicMock()
+            return MedicalImagingAgent("AIza" + "x" * 35, enable_web_search=enable)
+
+    def test_enabled_registers_tool_and_prompt(self):
+        agent = self._agent(True)
+        assert agent.get_agent_info()["tools"] == ["DuckDuckGo Search"]
+        assert "DuckDuckGo search tool" in agent.get_analysis_prompt()
+
+    def test_disabled_no_tool_and_prompt_adapts(self):
+        agent = self._agent(False)
+        assert agent.get_agent_info()["tools"] == []
+        assert agent.get_agent_info()["web_search"] is False
+        assert "DuckDuckGo search tool" not in agent.get_analysis_prompt()
+
+
 class TestAgentInfo:
 
     def test_get_agent_info(self, mocked_agent):
