@@ -14,6 +14,11 @@ class SessionValidator:
     # Placeholder shipped in .env.example — never a usable key
     PLACEHOLDER_KEYS = frozenset({"your_google_api_key_here"})
 
+    # Accepted Google AI Studio key prefixes:
+    #   "AIza" — legacy API keys
+    #   "AQ."  — 2026 "auth keys" (now the default when creating a key)
+    VALID_KEY_PREFIXES = ("AIza", "AQ.")
+
     def __init__(self):
         self.max_history_size = 50
         self.session_timeout = 3600  # 1 hour
@@ -31,8 +36,8 @@ class SessionValidator:
         if len(api_key) < 20:
             return {"valid": False, "error": "API key appears to be too short"}
 
-        if not api_key.startswith("AIza"):
-            return {"valid": False, "error": "Invalid Google API key format (expected to start with 'AIza')"}
+        if not api_key.startswith(self.VALID_KEY_PREFIXES):
+            return {"valid": False, "error": "Invalid Google API key format (expected to start with 'AIza' or 'AQ.')"}
 
         return {"valid": True}
 

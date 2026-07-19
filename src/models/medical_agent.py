@@ -27,7 +27,7 @@ TRANSIENT_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
 STATUS_HINTS = {
     400: "Invalid request — most commonly an invalid or placeholder API key, or an "
          "unsupported model/image. Check that GOOGLE_API_KEY is a real Google AI Studio "
-         "key (it starts with 'AIza').",
+         "key (it starts with 'AIza' or 'AQ.').",
     401: "Authentication failed — the API key is missing or invalid.",
     403: "Access denied — the API key lacks permission for this model, or the "
          "Generative Language API is not enabled for the project.",
