@@ -9,7 +9,7 @@ google-genai>=1.30.0
 google-generativeai==0.8.6
 
 # Web search tool (Agno DuckDuckGoTools)
-ddgs>=4.0.0
+ddgs>=9.14.4
 duckduckgo-search>=8.1.1
 
 # Image processing
