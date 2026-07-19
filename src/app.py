@@ -98,10 +98,20 @@ class MedicalImagingApp:
         """Initialize session state variables with validation"""
         try:
             # Initialize core session variables
-            # API key can be pre-configured via environment/.env (Docker, cloud deployment)
+            # API key can be pre-configured via environment/.env (Docker, cloud deployment).
+            # Validate it here so a placeholder/malformed key does not falsely show as
+            # "configured" and then fail later with an opaque API error.
+            env_key = (settings.google_api_key or "").strip() or None
+            if env_key and not self.session_validator.validate_api_key(env_key)["valid"]:
+                logger.warning(
+                    "Ignoring GOOGLE_API_KEY from environment: failed format validation "
+                    "(is it still the .env placeholder 'your_google_api_key_here'?)"
+                )
+                env_key = None
+
             session_defaults = {
                 "analysis_history": [],
-                "GOOGLE_API_KEY": settings.google_api_key or None,
+                "GOOGLE_API_KEY": env_key,
                 "current_analysis": None,
                 "app_initialized": True,
                 "error_count": 0,

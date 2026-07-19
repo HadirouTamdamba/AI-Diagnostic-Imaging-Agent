@@ -11,20 +11,28 @@ logger = logging.getLogger(__name__)
 class SessionValidator:
     """Session validation and management utilities"""
 
+    # Placeholder shipped in .env.example — never a usable key
+    PLACEHOLDER_KEYS = frozenset({"your_google_api_key_here"})
+
     def __init__(self):
         self.max_history_size = 50
         self.session_timeout = 3600  # 1 hour
 
     def validate_api_key(self, api_key: str) -> dict[str, Any]:
         """Validate Google API key format"""
+        api_key = (api_key or "").strip()
+
         if not api_key:
             return {"valid": False, "error": "API key is required"}
+
+        if api_key in self.PLACEHOLDER_KEYS:
+            return {"valid": False, "error": "API key is still the placeholder from .env.example — replace it with a real key"}
 
         if len(api_key) < 20:
             return {"valid": False, "error": "API key appears to be too short"}
 
         if not api_key.startswith("AIza"):
-            return {"valid": False, "error": "Invalid Google API key format"}
+            return {"valid": False, "error": "Invalid Google API key format (expected to start with 'AIza')"}
 
         return {"valid": True}
 
