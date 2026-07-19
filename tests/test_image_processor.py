@@ -1,10 +1,8 @@
 """
 Unit tests for image processor functionality
 """
-import pytest
 import io
 from PIL import Image as PILImage
-import numpy as np
 from src.utils.image_processor import ImageProcessor
 
 class TestImageProcessor: 
