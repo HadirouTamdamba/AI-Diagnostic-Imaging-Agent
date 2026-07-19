@@ -8,7 +8,7 @@ class TestSettings:
 
     def test_defaults(self):
         settings = Settings(_env_file=None)
-        assert settings.model_id == "gemini-2.0-flash"
+        assert settings.model_id == "gemini-2.5-flash"
         assert settings.max_image_size == 5 * 1024 * 1024
         assert settings.supported_formats == ["jpg", "jpeg", "png"]
         assert settings.max_analysis_time == 120

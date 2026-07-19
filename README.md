@@ -2,13 +2,13 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.47.0-red.svg)](https://streamlit.io)
-[![Google AI](https://img.shields.io/badge/Google%20AI-Gemini%202.0-orange.svg)](https://ai.google.dev)
+[![Google AI](https://img.shields.io/badge/Google%20AI-Gemini%202.5-orange.svg)](https://ai.google.dev)
 [![Agno](https://img.shields.io/badge/Agno-1.7.6-purple.svg)](https://docs.agno.dev)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![AWS](https://img.shields.io/badge/AWS-Compatible-232F3E.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
-An advanced AI-powered medical imaging analysis tool built with Streamlit and Google's Gemini 2.0 Flash model. This application addresses the critical challenge of providing rapid, accurate, and accessible medical image interpretation to bridge the gap between complex diagnostic imaging and clinical decision-making.
+An advanced AI-powered medical imaging analysis tool built with Streamlit and Google's Gemini 2.5 Flash model. This application addresses the critical challenge of providing rapid, accurate, and accessible medical image interpretation to bridge the gap between complex diagnostic imaging and clinical decision-making.
 
 ## 🎯 Problem Statement & Solution
 
@@ -24,7 +24,7 @@ Modern healthcare faces significant challenges in medical imaging interpretation
 ### Our Solution Approach
 This Medical Imaging Diagnosis Agent provides a comprehensive end-to-end solution through:
 
-1. **Advanced AI Integration**: Leveraging Google's Gemini 2.0 Flash model for sophisticated image analysis
+1. **Advanced AI Integration**: Leveraging Google's Gemini 2.5 Flash model for sophisticated image analysis
 2. **Multi-Modal Analysis**: Supporting various medical imaging modalities (X-ray, MRI, CT, Ultrasound)
 3. **Structured Reporting**: Generating professional-grade diagnostic reports following medical standards
 4. **Patient Communication**: Translating complex findings into understandable explanations
@@ -95,7 +95,7 @@ All variables are optional and can be set in `.env` (see [.env.example](.env.exa
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `GOOGLE_API_KEY` | — | Google AI Studio key (otherwise entered in the sidebar) |
-| `MODEL_ID` | `gemini-2.0-flash` | Gemini model used for analysis |
+| `MODEL_ID` | `gemini-2.5-flash` | Gemini model used for analysis |
 | `MAX_IMAGE_SIZE` | `5242880` | Max upload size in bytes (5 MB) |
 | `MAX_ANALYSIS_TIME` | `120` | Analysis timeout displayed to users (s) |
 | `LOG_LEVEL` | `INFO` | Application log verbosity |
@@ -152,7 +152,7 @@ automatically publishes the Docker image to GitHub Container Registry.
 - Established security protocols for handling sensitive medical data
 
 **Phase 2 - AI Model Integration & Optimization**
-- Integrated Google's Gemini 2.0 Flash model for advanced image understanding
+- Integrated Google's Gemini 2.5 Flash model for advanced image understanding
 - Implemented sophisticated prompt engineering for medical context accuracy
 - Developed image preprocessing pipeline for optimal AI analysis
 
@@ -203,7 +203,7 @@ automatically publishes the Docker image to GitHub Container Registry.
 
 ### 1. MedicalImagingAgent (`src/models/medical_agent.py`)
 **Primary Responsibilities:**
-- Google Gemini 2.0 Flash model initialization and management
+- Google Gemini 2.5 Flash model initialization and management
 - Advanced medical image analysis workflow orchestration
 - Structured diagnostic report generation with medical accuracy
 - Error handling and retry mechanisms for robust AI communication
