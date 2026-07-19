@@ -2,12 +2,12 @@
 Medical imaging analysis agent with enhanced capabilities
 """
 import logging
-from typing import List, Dict, Any, Optional
+import time
+from typing import Dict, Any, Optional
 from agno.agent import Agent
-from agno.models.google import Gemini 
+from agno.models.google import Gemini
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.media import Image as AgnoImage
-import streamlit as st
 
 logger = logging.getLogger(__name__)
 
@@ -87,14 +87,9 @@ Format your response with clear markdown headers, bullet points, and professiona
         """Analyze medical image with enhanced error handling"""
         try:
             prompt = custom_prompt or self.get_analysis_prompt()
-            
-            # Add timing and monitoring
-            import time
+
             start_time = time.time()
-            
-            with st.spinner("🔄 Analyzing medical image... This may take up to 2 minutes."):
-                response = self.agent.run(prompt, images=[image])
-                
+            response = self.agent.run(prompt, images=[image])
             analysis_time = time.time() - start_time
             
             # Structure the response

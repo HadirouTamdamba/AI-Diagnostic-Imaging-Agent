@@ -22,14 +22,18 @@ src_dir = current_dir
 sys.path.insert(0, str(src_dir))
 
 # Configure logging before other imports
+_log_handlers = [logging.StreamHandler()]
+try:
+    # File logging is optional (may fail in read-only/containerized environments)
+    _log_handlers.append(logging.FileHandler(os.getenv('LOG_FILE', 'medical_agent.log'), mode='a'))
+except OSError:
+    pass
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('medical_agent.log', mode='a')
-    ]
-) 
+    handlers=_log_handlers
+)
 logger = logging.getLogger(__name__)
 
 try:
@@ -85,9 +89,10 @@ class MedicalImagingApp:
         """Initialize session state variables with validation"""
         try:
             # Initialize core session variables
+            # API key can be pre-configured via environment/.env (Docker, cloud deployment)
             session_defaults = {
                 "analysis_history": [],
-                "GOOGLE_API_KEY": None,
+                "GOOGLE_API_KEY": settings.google_api_key or None,
                 "current_analysis": None,
                 "app_initialized": True,
                 "error_count": 0,

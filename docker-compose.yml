@@ -1,0 +1,22 @@
+services:
+  medical-imaging-agent:
+    build: .
+    image: medical-imaging-agent:latest
+    container_name: medical-imaging-agent
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1g

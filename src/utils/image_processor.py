@@ -2,16 +2,13 @@
 Image processing utilities with optimization and validation
 """
 import os
-import io
 import logging
-from PIL import Image as PILImage
-from PIL.ExifTags import TAGS
-from typing import Tuple, Optional, Dict, Any
+import tempfile
+from PIL import Image as PILImage, ImageEnhance
+from typing import Tuple, Dict, Any
 import numpy as np
 from agno.media import Image as AgnoImage
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ImageProcessor:
@@ -33,7 +30,8 @@ class ImageProcessor:
             
             # Format validation
             image = PILImage.open(uploaded_file)
-            if image.format.lower() not in ['jpeg', 'jpg', 'png']:
+            image_format = (image.format or "").lower()
+            if image_format not in ['jpeg', 'jpg', 'png']:
                 return {
                     "valid": False,
                     "error": f"Unsupported format: {image.format}"
@@ -70,12 +68,11 @@ class ImageProcessor:
                 image = image.convert('L')
             
             # Contrast enhancement for medical images
-            import PIL.ImageEnhance
-            enhancer = PIL.ImageEnhance.Contrast(image)
+            enhancer = ImageEnhance.Contrast(image)
             image = enhancer.enhance(1.2)
-            
+
             # Sharpness enhancement
-            enhancer = PIL.ImageEnhance.Sharpness(image)
+            enhancer = ImageEnhance.Sharpness(image)
             image = enhancer.enhance(1.1)
             
             return image
@@ -103,16 +100,21 @@ class ImageProcessor:
         
             # Load and process image
             image = PILImage.open(uploaded_file)
-            
+
+            # Normalize mode for PNG export (e.g. palette or CMYK images)
+            if image.mode not in ("RGB", "L", "RGBA"):
+                image = image.convert("RGB")
+
             # Apply medical enhancements
             image = self.enhance_medical_image(image)
-            
+
             # Resize if needed while maintaining aspect ratio
             if image.size[0] > self.target_size[0] or image.size[1] > self.target_size[1]:
                 image.thumbnail(self.target_size, PILImage.Resampling.LANCZOS)
-            
-            # Save optimized image
-            temp_path = "temp_optimized_image.png"
+
+            # Save optimized image to a unique temp file (multi-user safe)
+            with tempfile.NamedTemporaryFile(suffix=".png", prefix="medimg_", delete=False) as tmp:
+                temp_path = tmp.name
             image.save(temp_path, "PNG", optimize=True)
             
             logger.info(f"Image optimized: {validation_result['size']} -> {image.size}")
