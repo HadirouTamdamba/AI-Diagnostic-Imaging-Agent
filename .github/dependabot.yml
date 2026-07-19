@@ -20,3 +20,8 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      # Python base image is pinned to 3.12; major bumps (e.g. 3.14) break the build
+      - dependency-name: "python"
+        update-types:
+          - version-update:semver-major
