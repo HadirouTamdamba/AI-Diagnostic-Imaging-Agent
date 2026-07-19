@@ -107,6 +107,45 @@ class TestTransientErrorDetection:
     def test_permanent_errors_not_retried(self, message):
         assert MedicalImagingAgent._is_transient_error(Exception(message)) is False
 
+    def test_status_code_takes_precedence_over_opaque_message(self):
+        # agno hides the body ("<Response [...]>"); the status code is the real signal
+        transient = Exception("<Response [503 Service Unavailable]>")
+        transient.status_code = 503
+        assert MedicalImagingAgent._is_transient_error(transient) is True
+
+        bad_key = Exception("<Response [400 Bad Request]>")
+        bad_key.status_code = 400
+        assert MedicalImagingAgent._is_transient_error(bad_key) is False
+
+
+class TestErrorFormatting:
+
+    def test_400_gives_api_key_hint(self):
+        err = Exception("<Response [400 Bad Request]>")
+        err.status_code = 400
+        msg = MedicalImagingAgent._format_error(err)
+        assert "AIza" in msg and "400" in msg
+
+    def test_429_gives_quota_hint(self):
+        err = Exception("<Response [429]>")
+        err.status_code = 429
+        assert "quota" in MedicalImagingAgent._format_error(err).lower()
+
+    def test_unknown_status_falls_back_to_str(self):
+        assert MedicalImagingAgent._format_error(Exception("boom")) == "boom"
+
+    def test_bad_key_failure_result_is_actionable(self, mocked_agent):
+        err = Exception("<Response [400 Bad Request]>")
+        err.status_code = 400
+        mocked_agent.agent.run.side_effect = err
+
+        result = mocked_agent.analyze_image(MagicMock())
+
+        assert result["success"] is False
+        assert result["status_code"] == 400
+        assert result["attempts"] == 1  # 400 is not retried
+        assert "AIza" in result["error"]
+
 
 class TestAgentInfo:
 

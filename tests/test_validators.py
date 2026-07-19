@@ -31,3 +31,12 @@ class TestApiKeyValidation:
     def test_valid_key_accepted(self):
         result = self.validator.validate_api_key("AIza" + "x" * 35)
         assert result["valid"] is True
+
+    def test_placeholder_rejected(self):
+        result = self.validator.validate_api_key("your_google_api_key_here")
+        assert result["valid"] is False
+        assert "placeholder" in result["error"]
+
+    def test_surrounding_whitespace_trimmed(self):
+        result = self.validator.validate_api_key("  AIza" + "x" * 35 + "  ")
+        assert result["valid"] is True

@@ -19,6 +19,22 @@ TRANSIENT_ERROR_MARKERS = (
     "timeout", "deadline", "connection",
 )
 
+# HTTP status codes that are safe to retry (server-side / throttling)
+TRANSIENT_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
+
+# Actionable messages by HTTP status. The provider SDK (agno) hides the raw
+# error body, so we map the status code to a message the user can act on.
+STATUS_HINTS = {
+    400: "Invalid request — most commonly an invalid or placeholder API key, or an "
+         "unsupported model/image. Check that GOOGLE_API_KEY is a real Google AI Studio "
+         "key (it starts with 'AIza').",
+    401: "Authentication failed — the API key is missing or invalid.",
+    403: "Access denied — the API key lacks permission for this model, or the "
+         "Generative Language API is not enabled for the project.",
+    404: "Model not found — the configured MODEL_ID may be retired or misspelled.",
+    429: "Rate limit or quota exceeded — retry later or check your Google AI Studio quota.",
+}
+
 class MedicalImagingAgent:
     """Enhanced medical imaging analysis agent"""
 
@@ -96,9 +112,27 @@ Format your response with clear markdown headers, bullet points, and professiona
 
     @staticmethod
     def _is_transient_error(error: Exception) -> bool:
-        """Heuristic detection of retryable API errors (rate limit, overload, network)"""
+        """Detect retryable API errors via HTTP status code, then message markers.
+
+        The status code is the reliable signal: agno's ModelProviderError exposes
+        ``status_code`` but hides the message behind an opaque ``<Response [...]>``.
+        """
+        status = getattr(error, "status_code", None)
+        if status in TRANSIENT_STATUS_CODES:
+            return True
+        if status is not None:  # a definite non-transient status (e.g. 400/401/404)
+            return False
         message = str(error).lower()
         return any(marker in message for marker in TRANSIENT_ERROR_MARKERS)
+
+    @staticmethod
+    def _format_error(error: Exception) -> str:
+        """Turn an opaque provider error into an actionable message using its status code."""
+        status = getattr(error, "status_code", None)
+        hint = STATUS_HINTS.get(status)
+        if hint:
+            return f"{hint} (HTTP {status})"
+        return str(error)
 
     @staticmethod
     def _extract_token_usage(response: Any) -> dict[str, int]:
@@ -155,10 +189,12 @@ Format your response with clear markdown headers, bullet points, and professiona
                 else:
                     break
 
-        logger.error(f"Analysis failed after {attempt} attempt(s): {last_error}")
+        message = self._format_error(last_error)
+        logger.error(f"Analysis failed after {attempt} attempt(s): {message}")
         return {
-            "content": f"Analysis failed: {last_error}",
-            "error": str(last_error),
+            "content": f"Analysis failed: {message}",
+            "error": message,
+            "status_code": getattr(last_error, "status_code", None),
             "attempts": attempt,
             "success": False,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
