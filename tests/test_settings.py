@@ -8,16 +8,16 @@ class TestSettings:
 
     def test_defaults(self):
         settings = Settings(_env_file=None)
-        assert settings.model_id == "gemini-2.5-flash"
+        assert settings.model_id == "gemini-flash-latest"
         assert settings.max_image_size == 5 * 1024 * 1024
         assert settings.supported_formats == ["jpg", "jpeg", "png"]
         assert settings.max_analysis_time == 120
 
     def test_env_override(self, monkeypatch):
-        monkeypatch.setenv("MODEL_ID", "gemini-2.5-flash")
+        monkeypatch.setenv("MODEL_ID", "gemini-flash-latest")
         monkeypatch.setenv("MAX_IMAGE_SIZE", "10485760")
         settings = Settings(_env_file=None)
-        assert settings.model_id == "gemini-2.5-flash"
+        assert settings.model_id == "gemini-flash-latest"
         assert settings.max_image_size == 10 * 1024 * 1024
 
     def test_invalid_formats_fall_back_to_defaults(self):

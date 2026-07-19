@@ -34,7 +34,7 @@ class TestAnalyzeImage:
 
         assert result["success"] is True
         assert result["content"] == "Report content"
-        assert result["model_used"] == "gemini-2.5-flash"
+        assert result["model_used"] == "gemini-flash-latest"
         assert result["attempts"] == 1
         assert result["token_usage"]["total_tokens"] == 500
 
@@ -151,5 +151,5 @@ class TestAgentInfo:
 
     def test_get_agent_info(self, mocked_agent):
         info = mocked_agent.get_agent_info()
-        assert info["model_id"] == "gemini-2.5-flash"
+        assert info["model_id"] == "gemini-flash-latest"
         assert "DuckDuckGo Search" in info["tools"]

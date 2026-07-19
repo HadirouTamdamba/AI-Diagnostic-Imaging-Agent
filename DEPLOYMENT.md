@@ -64,7 +64,7 @@ Environment variables (via `.env`, compose `environment`, or platform secrets):
 | Variable | Default | Description |
 |---|---|---|
 | `GOOGLE_API_KEY` | – | Gemini API key; if unset, users enter it in the UI |
-| `MODEL_ID` | `gemini-2.5-flash` | Gemini model used for analysis |
+| `MODEL_ID` | `gemini-flash-latest` | Gemini model used for analysis |
 | `MAX_IMAGE_SIZE` | `5242880` | Max upload size in bytes (5 MB) |
 | `MAX_ANALYSIS_TIME` | `120` | Analysis timeout (seconds) |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |

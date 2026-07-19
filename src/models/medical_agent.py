@@ -38,7 +38,7 @@ STATUS_HINTS = {
 class MedicalImagingAgent:
     """Enhanced medical imaging analysis agent"""
 
-    def __init__(self, api_key: str, model_id: str = "gemini-2.5-flash",
+    def __init__(self, api_key: str, model_id: str = "gemini-flash-latest",
                  max_retries: int = 3, retry_base_delay: float = 2.0):
         self.api_key = api_key
         self.model_id = model_id
