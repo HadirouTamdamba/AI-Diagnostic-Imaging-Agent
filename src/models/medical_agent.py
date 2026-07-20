@@ -86,12 +86,21 @@ class MedicalImagingAgent:
             logger.error(f"Failed to initialize agent: {e}")
             raise
 
-    def get_analysis_prompt(self) -> str:
+    def get_analysis_prompt(self, language: str = "en") -> str:
         """Enhanced analysis prompt with structured output.
 
         Section 5 adapts to whether the web-search tool is available so the model
-        is not asked to call a tool that is not registered.
+        is not asked to call a tool that is not registered. `language` controls
+        the language the report is written in ("en" or "fr").
         """
+        language_directive = ""
+        if language == "fr":
+            language_directive = (
+                "\n\n**LANGUE**: Rédige l'intégralité du rapport en français "
+                "(titres, contenu et références), en conservant la terminologie "
+                "médicale correcte."
+            )
+
         if self.enable_web_search:
             research_section = """### 5. 📚 Research Context & References
 **Important**: Use the DuckDuckGo search tool to find:
@@ -142,7 +151,7 @@ Analyze the provided medical image with the following structured approach:
 - **Professional Review**: Emphasize need for radiologist confirmation
 - **Follow-up**: Suggest appropriate next steps
 
-Format your response with clear markdown headers, bullet points, and professional medical terminology balanced with patient accessibility.
+Format your response with clear markdown headers, bullet points, and professional medical terminology balanced with patient accessibility.{language_directive}
 """
 
     @staticmethod
@@ -230,42 +239,23 @@ Format your response with clear markdown headers, bullet points, and professiona
             pass
         return None
 
-    def analyze_image(self, image: AgnoImage, custom_prompt: str | None = None) -> dict[str, Any]:
-        """Analyze medical image with retry on transient errors and token telemetry"""
-        prompt = custom_prompt or self.get_analysis_prompt()
-        start_time = time.time()
-        last_error: Exception | None = None
+    def _run_with_retry(self, run_fn):
+        """Run ``run_fn()`` with retry/backoff on transient errors.
 
+        Returns ``(response, attempts)`` on success. On failure raises the last
+        error with an ``attempts`` attribute attached. A provider error returned
+        as response content (agno 2.x quirk) is turned into a raised error.
+        """
+        last_error: Exception | None = None
+        attempt = 0
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.agent.run(prompt, images=[image])
-
-                # agno 2.x may return a transient provider error as content
-                # instead of raising; route it through the retry/format logic.
+                response = run_fn()
                 payload = self._error_payload_in_content(getattr(response, "content", None))
                 if payload is not None:
                     code, msg = payload
                     raise ProviderResponseError(msg, status_code=code)
-
-                analysis_time = time.time() - start_time
-                token_usage = self._extract_token_usage(response)
-
-                result = {
-                    "content": response.content,
-                    "analysis_time": round(analysis_time, 2),
-                    "model_used": self.model_id,
-                    "token_usage": token_usage,
-                    "attempts": attempt,
-                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "success": True
-                }
-
-                logger.info(
-                    f"Analysis completed in {analysis_time:.2f}s "
-                    f"(attempt {attempt}/{self.max_retries}, tokens: {token_usage['total_tokens']})"
-                )
-                return result
-
+                return response, attempt
             except Exception as e:
                 last_error = e
                 if attempt < self.max_retries and self._is_transient_error(e):
@@ -277,16 +267,74 @@ Format your response with clear markdown headers, bullet points, and professiona
                     time.sleep(delay)
                 else:
                     break
+        last_error.attempts = attempt  # type: ignore[attr-defined]
+        raise last_error
 
-        message = self._format_error(last_error)
-        logger.error(f"Analysis failed after {attempt} attempt(s): {message}")
+    def _failure_result(self, error: Exception, prefix: str = "Analysis failed") -> dict[str, Any]:
+        """Build a structured failure dict with an actionable message."""
+        message = self._format_error(error)
+        attempts = getattr(error, "attempts", 1)
+        logger.error(f"{prefix} after {attempts} attempt(s): {message}")
         return {
-            "content": f"Analysis failed: {message}",
+            "content": f"{prefix}: {message}",
             "error": message,
-            "status_code": getattr(last_error, "status_code", None),
-            "attempts": attempt,
+            "status_code": getattr(error, "status_code", None),
+            "attempts": attempts,
             "success": False,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+    def analyze_image(self, image: AgnoImage, custom_prompt: str | None = None,
+                      language: str = "en") -> dict[str, Any]:
+        """Analyze medical image with retry on transient errors and token telemetry.
+
+        `language` ("en"/"fr") controls the language the report is written in.
+        """
+        prompt = custom_prompt or self.get_analysis_prompt(language)
+        start_time = time.time()
+        try:
+            response, attempts = self._run_with_retry(lambda: self.agent.run(prompt, images=[image]))
+        except Exception as e:
+            return self._failure_result(e)
+
+        analysis_time = time.time() - start_time
+        token_usage = self._extract_token_usage(response)
+        logger.info(
+            f"Analysis completed in {analysis_time:.2f}s "
+            f"(attempt {attempts}/{self.max_retries}, tokens: {token_usage['total_tokens']})"
+        )
+        return {
+            "content": response.content,
+            "analysis_time": round(analysis_time, 2),
+            "model_used": self.model_id,
+            "token_usage": token_usage,
+            "language": language,
+            "attempts": attempts,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "success": True,
+        }
+
+    def translate_report(self, content: str, target_language: str) -> dict[str, Any]:
+        """Translate an existing report to `target_language` in a single request."""
+        lang_name = {"fr": "French", "en": "English"}.get(target_language, "English")
+        prompt = (
+            f"Translate the following medical analysis report into {lang_name}. "
+            "Preserve all Markdown formatting (headers, bullet lists, numbering), the "
+            "overall structure, numeric values, and medical-terminology accuracy. "
+            "Do not add any commentary — output only the translated report.\n\n"
+            f"{content}"
+        )
+        start_time = time.time()
+        try:
+            response, _ = self._run_with_retry(lambda: self.agent.run(prompt))
+        except Exception as e:
+            return self._failure_result(e, prefix="Translation failed")
+
+        logger.info(f"Report translated to '{target_language}' in {time.time() - start_time:.2f}s")
+        return {
+            "content": response.content,
+            "language": target_language,
+            "success": True,
         }
 
     def get_agent_info(self) -> dict[str, Any]:

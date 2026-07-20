@@ -224,6 +224,37 @@ class TestWebSearchToggle:
         assert "DuckDuckGo search tool" not in agent.get_analysis_prompt()
 
 
+class TestLanguage:
+
+    def test_english_prompt_default(self, mocked_agent):
+        prompt = mocked_agent.get_analysis_prompt("en")
+        assert "LANGUE" not in prompt
+
+    def test_french_prompt_directive(self, mocked_agent):
+        prompt = mocked_agent.get_analysis_prompt("fr")
+        assert "français" in prompt
+
+    def test_analyze_records_language(self, mocked_agent):
+        mocked_agent.agent.run.return_value = make_response()
+        result = mocked_agent.analyze_image(MagicMock(), language="fr")
+        assert result["language"] == "fr"
+
+    def test_translate_report_success(self, mocked_agent):
+        mocked_agent.agent.run.return_value = make_response(content="Rapport traduit")
+        result = mocked_agent.translate_report("Report", "fr")
+        assert result["success"] is True
+        assert result["content"] == "Rapport traduit"
+        assert result["language"] == "fr"
+
+    def test_translate_report_failure_is_structured(self, mocked_agent):
+        err = Exception("<Response [400 Bad Request]>")
+        err.status_code = 400
+        mocked_agent.agent.run.side_effect = err
+        result = mocked_agent.translate_report("Report", "fr")
+        assert result["success"] is False
+        assert result["status_code"] == 400
+
+
 class TestAgentInfo:
 
     def test_get_agent_info(self, mocked_agent):

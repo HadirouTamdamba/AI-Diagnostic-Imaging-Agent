@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     # Live web search adds references but costs extra requests (free-tier quota);
     # can be toggled off in the UI to conserve the daily quota.
     enable_web_search: bool = True
+    # Default UI / report language ("en" or "fr"); switchable in the UI.
+    default_language: str = "en"
 
     # Image Processing
     max_image_size: int = 5 * 1024 * 1024  # 5MB
