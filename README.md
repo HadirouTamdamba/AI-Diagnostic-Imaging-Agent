@@ -124,6 +124,44 @@ automatically publishes the Docker image to GitHub Container Registry.
 
 ---
 
+## ☁️ Cloud & MLOps / LLMOps Engineering
+
+Beyond the model itself, this project applies production engineering practices across the
+full lifecycle — design, development, testing, deployment, and operation.
+
+### Infrastructure as Code (AWS)
+- **Terraform module** ([deploy/terraform/](deploy/terraform/README.md)) provisioning the
+  full stack — ECR, ECS **Fargate** (serverless containers), **Application Load Balancer**
+  with health checks, **Secrets Manager**, least-privilege **IAM**, **CloudWatch Logs**,
+  and security groups. `terraform validate`-clean; **$0 until `terraform apply`**.
+- **Amazon ECS Express Mode** deploy script ([deploy/DEPLOY_AWS.md](deploy/DEPLOY_AWS.md))
+  as the App Runner replacement for a one-command managed deployment.
+
+### CI/CD & DevOps
+- **GitHub Actions**: lint + tests + coverage, `pip-audit` dependency scan, Docker build &
+  container smoke test on every push; release pipeline publishing to GHCR on tags; an
+  ECS deploy workflow using **GitHub OIDC** (no long-lived AWS keys).
+- **Dependabot** (pip, GitHub Actions, Docker) with grouped updates; **pre-commit** hooks.
+- **Docker**: multi-stage build, non-root user, healthcheck, pinned dependencies.
+
+### LLMOps (operating the Gemini agent)
+- **Resilience**: exponential-backoff retries on transient errors, with per-day quota
+  errors failing fast instead of looping.
+- **Observability**: token-usage telemetry, structured logging, actionable error messages
+  mapped from provider status codes.
+- **Cost/quota control**: web-search toggle to trade richer reports for fewer API calls;
+  agent caching to avoid re-initialisation; configurable model via `MODEL_ID`.
+- **Config & secrets**: 12-factor environment configuration (Pydantic Settings), secrets
+  kept out of the image and injected at runtime.
+
+### Quality & Security
+- **Testing**: unit-tested core (agent retry/translation, validators, i18n, settings) with
+  the LLM mocked — deterministic, no API calls in CI.
+- **Security**: input/format validation, dependency auditing, `SECURITY.md` policy,
+  privacy-first handling (no medical data persistence).
+
+---
+
 ## Supported Medical Imaging Modalities
 
 ### 🦴 X-ray Imaging
