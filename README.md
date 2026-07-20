@@ -80,7 +80,12 @@ cp .env.example .env             # set GOOGLE_API_KEY in .env
 docker compose up --build -d
 ```
 
-The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md) for Streamlit Community Cloud and production deployment details, and [deploy/DEPLOY_AWS.md](deploy/DEPLOY_AWS.md) for a one-command AWS deployment (Amazon ECS Express Mode — the App Runner replacement: Fargate + load balancer + HTTPS URL, secret managed by Secrets Manager).
+The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md) for Streamlit Community Cloud and production deployment details.
+
+### ☁️ AWS deployment (Infrastructure-as-Code)
+
+- **[deploy/terraform/](deploy/terraform/README.md)** — Terraform module describing the full AWS stack (ECS Fargate + Application Load Balancer + Secrets Manager + IAM + CloudWatch). Reviewable as code; **$0 until `terraform apply`** — a zero-cost way to demonstrate the cloud architecture.
+- **[deploy/DEPLOY_AWS.md](deploy/DEPLOY_AWS.md)** — one-command managed deploy via Amazon ECS Express Mode (AWS's App Runner replacement) plus a GitHub Actions CI/CD workflow.
 
 ### Usage
 1. Enter your Google API key (sidebar) if not pre-configured
