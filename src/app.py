@@ -37,6 +37,8 @@ logger = logging.getLogger(__name__)
 
 try:
     # Local imports with error handling
+    from config.i18n import LANGUAGES
+    from config.i18n import t as _t
     from config.settings import settings
     from models.medical_agent import MedicalImagingAgent
     from utils.image_processor import ImageProcessor
@@ -117,6 +119,7 @@ class MedicalImagingApp:
                 "error_count": 0,
                 "current_page": "main",  # Add page navigation
                 "enable_web_search": settings.enable_web_search,
+                "ui_lang": settings.default_language,
             }
 
             for key, default_value in session_defaults.items():
@@ -130,11 +133,36 @@ class MedicalImagingApp:
             logger.error(f"Session state initialization failed: {e}")
             st.error("Failed to initialize session. Please refresh the page.")
 
+    def t(self, key: str) -> str:
+        """Translate a UI string into the current session language."""
+        return _t(key, st.session_state.get("ui_lang", "en"))
+
+    def _render_language_selector(self):
+        """Render the EN/FR language selector."""
+        codes = list(LANGUAGES.keys())
+        current = st.session_state.get("ui_lang", "en")
+        choice = st.radio(
+            self.t("language"),
+            options=codes,
+            index=codes.index(current) if current in codes else 0,
+            format_func=lambda c: LANGUAGES[c],
+            horizontal=True,
+            key="ui_lang_selector",
+        )
+        if choice != current:
+            st.session_state.ui_lang = choice
+            st.rerun()
+
     def render_sidebar(self):
         """Enhanced sidebar with better error handling and navigation"""
         try:
             with st.sidebar:
-                st.title("⚙️ Configuration")
+                st.title(self.t("configuration"))
+
+                # Language selector
+                self._render_language_selector()
+
+                st.divider()
 
                 # Navigation Menu
                 self._render_navigation_menu()
@@ -174,50 +202,50 @@ class MedicalImagingApp:
 
     def _render_navigation_menu(self):
         """Render navigation menu in sidebar"""
-        st.subheader("🧭 Navigation")
+        st.subheader(self.t("navigation"))
 
         # Navigation buttons
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("🏠 Home", width='stretch'):
+            if st.button(self.t("home"), width='stretch'):
                 st.session_state.current_page = "main"
                 st.rerun()
 
         with col2:
-            if st.button("👨‍💻 About", width='stretch'):
+            if st.button(self.t("about"), width='stretch'):
                 st.session_state.current_page = "about"
                 st.rerun()
 
     def _render_api_config(self):
         """Render API configuration section"""
         if not st.session_state.GOOGLE_API_KEY:
-            st.subheader("🔑 API Configuration")
+            st.subheader(self.t("api_configuration"))
 
             api_key = st.text_input(
-                "Google API Key:",
+                self.t("api_key_label"),
                 type="password",
                 help="Get your API key from Google AI Studio",
-                placeholder="Enter your API key here..."
+                placeholder=self.t("api_key_placeholder")
             )
 
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("💾 Save Key", type="primary"):
+                if st.button(self.t("save_key"), type="primary"):
                     if self._validate_and_save_api_key(api_key):
-                        st.success("✅ API Key saved!")
+                        st.success(self.t("api_key_saved"))
                         time.sleep(1)
                         st.rerun()
 
             with col2:
                 st.link_button(
-                    "🔗 Get API Key",
+                    self.t("get_api_key"),
                     "https://aistudio.google.com/apikey",
                     help="Get your free Google AI Studio API key"
                 )
         else:
-            st.success("✅ API Key configured")
-            if st.button("🔄 Reset API Key"):
+            st.success(self.t("api_key_configured"))
+            if st.button(self.t("reset_api_key")):
                 st.session_state.GOOGLE_API_KEY = None
                 st.rerun()
 
@@ -237,28 +265,20 @@ class MedicalImagingApp:
 
     def _render_analysis_options(self):
         """Render analysis options: live web search toggle."""
-        st.subheader("🔎 Analysis Options")
+        st.subheader(self.t("analysis_options"))
         enabled = st.toggle(
-            "Live web search (references)",
+            self.t("web_search_label"),
             value=st.session_state.get("enable_web_search", True),
-            help=(
-                "ON: the agent searches DuckDuckGo for live medical references "
-                "(richer report, but several API requests per analysis). "
-                "OFF: one request per analysis — best to conserve the free-tier "
-                "daily quota; references come from the model's knowledge."
-            ),
+            help=self.t("web_search_help"),
         )
         if enabled != st.session_state.get("enable_web_search"):
             st.session_state.enable_web_search = enabled
             st.rerun()
-        st.caption(
-            "🌐 Live references ON" if enabled
-            else "⚡ Quota-saver mode (1 request/analysis)"
-        )
+        st.caption(self.t("web_search_on") if enabled else self.t("web_search_off"))
 
     def _render_app_info(self):
         """Render application information"""
-        st.subheader("ℹ️ Application Info")
+        st.subheader(self.t("app_info"))
 
         with st.expander("📋 Features", expanded=False):
             st.markdown("""
@@ -280,7 +300,7 @@ class MedicalImagingApp:
 
     def _render_model_info(self):
         """Render model information"""
-        st.subheader("🤖 Model Status")
+        st.subheader(self.t("model_status"))
         try:
             # Cached agent (no re-initialization on every rerun)
             agent = get_agent(
@@ -289,36 +309,36 @@ class MedicalImagingApp:
             )
             agent_info = agent.get_agent_info()
 
-            st.success("🟢 Model Ready")
-            st.write(f"**Model**: {agent_info['model_id']}")
-            st.write(f"**Tools**: {', '.join(agent_info['tools'])}")
+            st.success(self.t("model_ready"))
+            st.write(f"**{self.t('model')}**: {agent_info['model_id']}")
+            st.write(f"**Tools**: {', '.join(agent_info['tools']) or '—'}")
 
         except Exception as e:
-            st.error("🔴 Model Error")
+            st.error(self.t("model_error"))
             st.error(f"Failed to initialize: {str(e)}")
 
     def _render_analysis_history(self):
         """Render analysis history section"""
         if st.session_state.analysis_history:
-            st.subheader("📊 Analysis History")
+            st.subheader(self.t("analysis_history"))
 
             history_count = len(st.session_state.analysis_history)
             successful_analyses = sum(1 for analysis in st.session_state.analysis_history if analysis.get("success", False))
 
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("Total", history_count)
+                st.metric(self.t("total"), history_count)
             with col2:
-                st.metric("Successful", successful_analyses)
+                st.metric(self.t("successful"), successful_analyses)
 
-            if st.button("🗑️ Clear History"):
+            if st.button(self.t("clear_history")):
                 st.session_state.analysis_history = []
                 st.session_state.current_analysis = None
                 st.rerun()
 
     def _render_system_status(self):
         """Render system status information"""
-        st.subheader("💻 System Status")
+        st.subheader(self.t("system_status"))
 
         # Check system health
         status_items = {
@@ -332,12 +352,7 @@ class MedicalImagingApp:
 
     def _render_disclaimer(self):
         """Render medical disclaimer"""
-        st.error(
-            "⚠️ **MEDICAL DISCLAIMER**\n\n"
-            "This tool is for **educational purposes only**. "
-            "All analyses must be reviewed by qualified healthcare professionals. "
-            "**Do not make medical decisions** based solely on this analysis."
-        )
+        st.error(self.t("disclaimer"))
 
     def render_about_page(self):
         """Render the About Me page"""
@@ -789,8 +804,8 @@ class MedicalImagingApp:
 
             # Main application content (default page)
             # Header
-            st.title("🏥 Medical Imaging Diagnosis Agent")
-            st.markdown("### Advanced AI-Powered Medical Image Analysis")
+            st.title(self.t("app_title"))
+            st.markdown(self.t("app_subtitle"))
             st.markdown("---")
 
             # Check API key status
@@ -807,7 +822,7 @@ class MedicalImagingApp:
 
     def _render_setup_instructions(self):
         """Render setup instructions when API key is missing"""
-        st.warning("⚠️ **Configuration Required**")
+        st.warning(self.t("config_required"))
 
         st.markdown("""
         To get started:
@@ -842,11 +857,11 @@ class MedicalImagingApp:
 
     def _render_upload_interface(self):
         """Render the main upload and analysis interface"""
-        st.subheader("📤 Upload Medical Image")
+        st.subheader(self.t("upload_title"))
 
         # File uploader with enhanced validation
         uploaded_file = st.file_uploader(
-            "Choose a medical image file",
+            self.t("upload_choose"),
             type=settings.supported_formats,
             help=f"Supported formats: {', '.join(settings.supported_formats).upper()} | Max size: {settings.max_image_size / (1024*1024):.1f}MB"
         )
@@ -858,7 +873,7 @@ class MedicalImagingApp:
 
     def _render_upload_placeholder(self):
         """Render placeholder content when no image is uploaded"""
-        st.info("👆 **Upload a medical image to begin analysis**")
+        st.info(self.t("upload_placeholder"))
 
         # Sample images or instructions could go here
         with st.expander("💡 Tips for Best Results", expanded=False):
@@ -882,11 +897,11 @@ class MedicalImagingApp:
             col1, col2 = st.columns([1, 1])
 
             with col1:
-                st.subheader("📷 Uploaded Image")
+                st.subheader(self.t("uploaded_image"))
                 self._display_image_preview(uploaded_file)
 
             with col2:
-                st.subheader("📋 Analysis Results")
+                st.subheader(self.t("analysis_results"))
                 self._display_analysis_section(uploaded_file)
 
         except Exception as e:
@@ -897,7 +912,7 @@ class MedicalImagingApp:
     def _display_image_preview(self, uploaded_file):
         """Display image preview with metadata"""
         try:
-            with st.spinner("🔄 Processing image..."):
+            with st.spinner(self.t("processing_image")):
                 optimized_image, temp_path = self.image_processor.optimize_for_analysis(uploaded_file)
                 st.session_state.temp_image_path = temp_path
 
@@ -910,15 +925,15 @@ class MedicalImagingApp:
 
             # Image metadata
             file_size_kb = uploaded_file.size / 1024
-            with st.expander("📊 Image Details", expanded=False):
+            with st.expander(self.t("image_details"), expanded=False):
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.write(f"**Filename**: {uploaded_file.name}")
-                    st.write(f"**Size**: {file_size_kb:.1f} KB")
+                    st.write(f"**{self.t('filename')}**: {uploaded_file.name}")
+                    st.write(f"**{self.t('size')}**: {file_size_kb:.1f} KB")
                 with col2:
-                    st.write(f"**Dimensions**: {optimized_image.size[0]}×{optimized_image.size[1]}px")
+                    st.write(f"**{self.t('dimensions')}**: {optimized_image.size[0]}×{optimized_image.size[1]}px")
                     # In-memory optimized image has no .format; it is saved as PNG
-                    st.write(f"**Format**: {optimized_image.format or 'PNG (optimized)'}")
+                    st.write(f"**{self.t('format')}**: {optimized_image.format or 'PNG (optimized)'}")
 
         except Exception as e:
             logger.error(f"Image preview failed: {e}")
@@ -927,7 +942,7 @@ class MedicalImagingApp:
     def _display_analysis_section(self, uploaded_file):
         """Display analysis section with enhanced controls"""
         # Analysis button
-        if st.button("🔍 Analyze Image", type="primary", width='stretch'):
+        if st.button(self.t("analyze_button"), type="primary", width='stretch'):
             if hasattr(st.session_state, 'temp_image_path'):
                 self._perform_analysis(st.session_state.temp_image_path, uploaded_file.name)
             else:
@@ -937,7 +952,7 @@ class MedicalImagingApp:
         if st.session_state.current_analysis:
             self._display_analysis_results(st.session_state.current_analysis)
         else:
-            st.info("👈 Click 'Analyze Image' to start medical analysis")
+            st.info(self.t("click_to_start"))
 
             # Show analysis preview
             with st.expander("🔍 What to Expect", expanded=False):
@@ -959,7 +974,7 @@ class MedicalImagingApp:
             status_text = st.empty()
 
             # Step 1: Initialize agent
-            status_text.text("🤖 Initializing AI agent...")
+            status_text.text(self.t("init_agent"))
             progress_bar.progress(20)
 
             agent = get_agent(
@@ -968,17 +983,17 @@ class MedicalImagingApp:
             )
 
             # Step 2: Prepare image
-            status_text.text("🖼️ Preparing image for analysis...")
+            status_text.text(self.t("prep_image"))
             progress_bar.progress(40)
 
             agno_image = self.image_processor.create_agno_image(image_path)
 
             # Step 3: Perform analysis
-            status_text.text("🔍 Analyzing medical image... This may take up to 2 minutes...")
+            status_text.text(self.t("analyzing"))
             progress_bar.progress(60)
 
             start_time = time.time()
-            result = agent.analyze_image(agno_image)
+            result = agent.analyze_image(agno_image, language=st.session_state.ui_lang)
             analysis_time = time.time() - start_time
 
             # Step 4: Process results
@@ -992,7 +1007,7 @@ class MedicalImagingApp:
             st.session_state.analysis_history.append(result)
 
             # Step 5: Cleanup
-            status_text.text("🧹 Cleaning up...")
+            status_text.text(self.t("cleaning_up"))
             progress_bar.progress(100)
 
             self.image_processor.cleanup_temp_files(image_path)
@@ -1003,10 +1018,10 @@ class MedicalImagingApp:
 
             # Show results
             if result["success"]:
-                st.success(f"✅ Analysis completed successfully in {result['analysis_time']}s")
+                st.success(self.t("analysis_success").format(t=result['analysis_time']))
                 st.rerun()
             else:
-                st.error(f"❌ Analysis failed: {result.get('error', 'Unknown error')}")
+                st.error(self.t("analysis_failed").format(e=result.get('error', 'Unknown error')))
 
         except Exception as e:
             logger.error(f"Analysis failed: {traceback.format_exc()}")
@@ -1031,22 +1046,22 @@ class MedicalImagingApp:
         """Enhanced results display with better formatting"""
         if result["success"]:
             # Success header
-            st.success("✅ Analysis Complete")
+            st.success(self.t("analysis_complete"))
 
             # Quick metrics
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                st.metric("Analysis Time", f"{result['analysis_time']}s")
+                st.metric(self.t("analysis_time"), f"{result['analysis_time']}s")
             with col2:
-                st.metric("Model", result['model_used'])
+                st.metric(self.t("model"), result['model_used'])
             with col3:
-                st.metric("Timestamp", result['timestamp'].split()[1])
+                st.metric(self.t("timestamp"), result['timestamp'].split()[1])
             with col4:
                 tokens = result.get("token_usage", {}).get("total_tokens", 0)
-                st.metric("Tokens", f"{tokens:,}" if tokens else "n/a")
+                st.metric(self.t("tokens"), f"{tokens:,}" if tokens else "n/a")
 
             # Main analysis content
-            st.markdown("### 📋 Medical Analysis Report")
+            st.markdown(self.t("report_title"))
             st.markdown("---")
             st.markdown(result["content"])
 
@@ -1057,7 +1072,7 @@ class MedicalImagingApp:
                 # Download report
                 report_filename = f"medical_analysis_{result['timestamp'].replace(' ', '_').replace(':', '-')}.md"
                 st.download_button(
-                    label="📥 Download Report",
+                    label=self.t("download_report"),
                     data=result["content"],
                     file_name=report_filename,
                     mime="text/markdown",
@@ -1065,24 +1080,49 @@ class MedicalImagingApp:
                 )
 
             with col2:
-                # Share analysis (copy to clipboard simulation)
-                if st.button("📋 Copy Report", width='stretch'):
-                    st.success("Report copied to clipboard! (use Ctrl+C)")
+                # Translate report to the other language (single request)
+                report_lang = result.get("language", "en")
+                target = "en" if report_lang == "fr" else "fr"
+                translate_label = self.t("translate_to_en") if target == "en" else self.t("translate_to_fr")
+                if st.button(translate_label, width='stretch'):
+                    self._translate_current_report(result, target)
 
             with col3:
                 # Start new analysis
-                if st.button("🔄 New Analysis", width='stretch'):
+                if st.button(self.t("new_analysis"), width='stretch'):
                     st.session_state.current_analysis = None
                     st.rerun()
 
         else:
-            st.error("❌ Analysis Failed")
+            st.error(self.t("analysis_failed_header"))
             st.error(result.get("error", "Unknown error occurred"))
 
             # Retry option
-            if st.button("🔄 Retry Analysis"):
+            if st.button(self.t("retry_analysis")):
                 st.session_state.current_analysis = None
                 st.rerun()
+
+    def _translate_current_report(self, result: dict, target_language: str):
+        """Translate the current report to `target_language` in one request."""
+        try:
+            with st.spinner(self.t("translating")):
+                agent = get_agent(
+                    st.session_state.GOOGLE_API_KEY, settings.model_id,
+                    st.session_state.enable_web_search,
+                )
+                translation = agent.translate_report(result["content"], target_language)
+
+            if translation["success"]:
+                result["content"] = translation["content"]
+                result["language"] = target_language
+                st.session_state.current_analysis = result
+                st.success(self.t("translate_success"))
+                st.rerun()
+            else:
+                st.error(translation.get("error", "Translation failed"))
+        except Exception as e:
+            logger.error(f"Translation failed: {e}")
+            st.error(f"Translation error: {e}")
 
     def run(self):
         """Main application runner with comprehensive error handling"""
@@ -1101,10 +1141,9 @@ class MedicalImagingApp:
                 st.markdown("---")
                 st.markdown(
                     "<div style='text-align: center; color: #666; font-size: 0.8em;'>"
-                    "Medical Imaging Diagnosis Agent v1.0 | "
+                    "Medical Imaging Diagnosis Agent v1.1 | "
                     "Developed by <a href='https://www.linkedin.com/in/hadirou-tamdamba/' target='_blank'>Hadirou Tamdamba</a> | "
-                    "For educational purposes only | "
-                    "Always consult healthcare professionals"
+                    f"{self.t('footer')}"
                     "</div>",
                     unsafe_allow_html=True
                 )
