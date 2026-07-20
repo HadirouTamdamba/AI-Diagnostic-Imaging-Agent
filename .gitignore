@@ -26,3 +26,10 @@ htmlcov/
 .idea/
 .DS_Store
 .claude/launch.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
