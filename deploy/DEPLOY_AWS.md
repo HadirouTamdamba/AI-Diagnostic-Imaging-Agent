@@ -1,4 +1,19 @@
-# Deploying to AWS — ECS Express Mode
+# Deploying to AWS
+
+Two paths are provided:
+
+- **`deploy/terraform/`** — Infrastructure-as-Code (ECS Fargate + ALB + Secrets Manager +
+  IAM + CloudWatch). **Costs nothing until `terraform apply`** — ideal to showcase the
+  cloud architecture in a portfolio without any billing. See
+  [deploy/terraform/README.md](terraform/README.md).
+- **ECS Express Mode** (below) — a one-command managed deploy (AWS's App Runner
+  replacement) for an actual live URL.
+
+> **Zero-cost portfolio tip:** keep the Terraform module as reviewable IaC (don't apply),
+> or apply it briefly, screenshot the running app, then `terraform destroy` (a few cents).
+> Either way the *code* demonstrates the AWS competency.
+
+---
 
 ## Why not App Runner?
 
