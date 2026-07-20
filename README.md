@@ -80,7 +80,7 @@ cp .env.example .env             # set GOOGLE_API_KEY in .env
 docker compose up --build -d
 ```
 
-The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md) for Streamlit Community Cloud and production deployment details.
+The app is available at http://localhost:8501. See [DEPLOYMENT.md](DEPLOYMENT.md) for Streamlit Community Cloud and production deployment details, and [deploy/DEPLOY_AWS.md](deploy/DEPLOY_AWS.md) for a one-command AWS deployment (Amazon ECS Express Mode — the App Runner replacement: Fargate + load balancer + HTTPS URL, secret managed by Secrets Manager).
 
 ### Usage
 1. Enter your Google API key (sidebar) if not pre-configured

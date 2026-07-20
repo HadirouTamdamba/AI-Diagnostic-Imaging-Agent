@@ -1,0 +1,78 @@
+name: Deploy to ECS Express Mode
+
+# Builds the image, pushes to ECR, and deploys to ECS Express Mode.
+# Manual by default; enable the `push` trigger for continuous deployment.
+#
+# One-time setup (see deploy/DEPLOY_AWS.md):
+#   - Run deploy/deploy-ecs-express.sh once to create the service + IAM roles.
+#   - Configure GitHub OIDC -> an IAM role `github-actions-ecs-role`.
+#   - Add repo Variables: AWS_REGION, AWS_ACCOUNT_ID, ECR_REPOSITORY, ECS_SERVICE.
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+permissions:
+  id-token: write   # required for AWS OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-actions-ecs-role
+          role-session-name: GitHubActionsECSDeploy
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Short commit hash
+        run: echo "IMAGE_TAG=${GITHUB_SHA:0:7}" >> "$GITHUB_ENV"
+
+      - name: Build, tag and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Deploy to ECS Express Mode
+        uses: aws-actions/amazon-ecs-deploy-express-service@v1
+        with:
+          service-name: ${{ env.ECS_SERVICE }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          execution-role-arn: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole
+          infrastructure-role-arn: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/ecsInfrastructureRoleForExpressServices
+          container-port: 8501
+          health-check-path: /_stcore/health
+          cpu: '1024'
+          memory: '2048'
+          min-task-count: 1
+          max-task-count: 2
+          auto-scaling-metric: AVERAGE_CPU
+          auto-scaling-target-value: 70
+          environment-variables: |
+            [
+              {"name": "MODEL_ID", "value": "gemini-flash-latest"},
+              {"name": "ENABLE_WEB_SEARCH", "value": "true"},
+              {"name": "DEFAULT_LANGUAGE", "value": "en"},
+              {"name": "LOG_LEVEL", "value": "INFO"},
+              {"name": "LOG_FILE", "value": "/tmp/medical_agent.log"}
+            ]
