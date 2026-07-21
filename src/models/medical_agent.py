@@ -55,15 +55,33 @@ class MedicalImagingAgent:
 
     def __init__(self, api_key: str, model_id: str = "gemini-flash-latest",
                  max_retries: int = 3, retry_base_delay: float = 2.0,
-                 enable_web_search: bool = True):
+                 enable_web_search: bool = True, fallback_model_id: str | None = None):
         self.api_key = api_key
         self.model_id = model_id
         self.max_retries = max_retries
         self.retry_base_delay = retry_base_delay
         self.enable_web_search = enable_web_search
+        self.fallback_model_id = fallback_model_id if fallback_model_id != model_id else None
+        self._fallback_agent: Agent | None = None
         self.agent = self._initialize_agent()
 
-    def _initialize_agent(self) -> Agent:
+    def _build_fallback_agent(self) -> Agent | None:
+        """Lazily build an agent on the fallback model (built only if needed)."""
+        if not self.fallback_model_id:
+            return None
+        if self._fallback_agent is None:
+            self._fallback_agent = self._initialize_agent(self.fallback_model_id)
+        return self._fallback_agent
+
+    @staticmethod
+    def _should_fallback(error: Exception) -> bool:
+        """Fall back only for capacity/quota errors — a different model can serve those.
+
+        Config/auth errors (400/401/403/404) would fail identically on any model.
+        """
+        return getattr(error, "status_code", None) in TRANSIENT_STATUS_CODES
+
+    def _initialize_agent(self, model_id: str | None = None) -> Agent:
         """Initialize the Gemini agent, optionally with the web-search tool.
 
         Web search adds live medical references but costs extra API round-trips
@@ -74,7 +92,7 @@ class MedicalImagingAgent:
             tools = [DuckDuckGoTools()] if self.enable_web_search else []
             return Agent(
                 model=Gemini(
-                    id=self.model_id,
+                    id=model_id or self.model_id,
                     api_key=self.api_key
                 ),
                 tools=tools,
@@ -292,21 +310,35 @@ Format your response with clear markdown headers, bullet points, and professiona
         """
         prompt = custom_prompt or self.get_analysis_prompt(language)
         start_time = time.time()
+        model_used = self.model_id
+
         try:
             response, attempts = self._run_with_retry(lambda: self.agent.run(prompt, images=[image]))
-        except Exception as e:
-            return self._failure_result(e)
+        except Exception as primary_error:
+            fallback = self._build_fallback_agent() if self._should_fallback(primary_error) else None
+            if fallback is None:
+                return self._failure_result(primary_error)
+            logger.warning(
+                f"Model '{self.model_id}' unavailable ({self._format_error(primary_error)}); "
+                f"falling back to '{self.fallback_model_id}'"
+            )
+            try:
+                response, attempts = self._run_with_retry(lambda: fallback.run(prompt, images=[image]))
+                model_used = self.fallback_model_id
+            except Exception as fallback_error:
+                return self._failure_result(fallback_error)
 
         analysis_time = time.time() - start_time
         token_usage = self._extract_token_usage(response)
         logger.info(
-            f"Analysis completed in {analysis_time:.2f}s "
+            f"Analysis completed in {analysis_time:.2f}s using '{model_used}' "
             f"(attempt {attempts}/{self.max_retries}, tokens: {token_usage['total_tokens']})"
         )
         return {
             "content": response.content,
             "analysis_time": round(analysis_time, 2),
-            "model_used": self.model_id,
+            "model_used": model_used,
+            "fallback_used": model_used != self.model_id,
             "token_usage": token_usage,
             "language": language,
             "attempts": attempts,

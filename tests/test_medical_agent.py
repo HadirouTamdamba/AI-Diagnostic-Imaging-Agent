@@ -255,6 +255,67 @@ class TestLanguage:
         assert result["status_code"] == 400
 
 
+@pytest.fixture
+def agent_with_fallback():
+    """Agent + (primary, fallback) mocks; the patch stays active for the whole test
+    so the lazily-built fallback agent is mocked too."""
+    with patch("src.models.medical_agent.Agent") as agent_cls, \
+         patch("src.models.medical_agent.Gemini"), \
+         patch("src.models.medical_agent.DuckDuckGoTools"):
+        primary, fallback = MagicMock(), MagicMock()
+        agent_cls.side_effect = [primary, fallback]
+        agent = MedicalImagingAgent(
+            "AIza" + "x" * 35, retry_base_delay=0.0,
+            fallback_model_id="gemini-3-flash-preview",
+        )
+        yield agent, primary, fallback
+
+
+class TestModelFallback:
+
+    def test_overloaded_primary_falls_back(self, agent_with_fallback):
+        agent, primary, fallback = agent_with_fallback
+        err = Exception("<Response [503]>")
+        err.status_code = 503
+        primary.run.side_effect = err
+        fallback.run.return_value = make_response(content="Report from fallback")
+
+        result = agent.analyze_image(MagicMock())
+
+        assert result["success"] is True
+        assert result["model_used"] == "gemini-3-flash-preview"
+        assert result["fallback_used"] is True
+        assert result["content"] == "Report from fallback"
+
+    def test_no_fallback_on_config_error(self, agent_with_fallback):
+        agent, primary, fallback = agent_with_fallback
+        err = Exception("<Response [400]>")
+        err.status_code = 400
+        primary.run.side_effect = err
+
+        result = agent.analyze_image(MagicMock())
+
+        assert result["success"] is False
+        fallback.run.assert_not_called()  # 400 would fail identically on any model
+
+    def test_no_fallback_when_primary_succeeds(self, agent_with_fallback):
+        agent, primary, fallback = agent_with_fallback
+        primary.run.return_value = make_response()
+
+        result = agent.analyze_image(MagicMock())
+
+        assert result["success"] is True
+        assert result["fallback_used"] is False
+        fallback.run.assert_not_called()
+
+    def test_fallback_equal_to_primary_is_ignored(self):
+        with patch("src.models.medical_agent.Agent"), \
+             patch("src.models.medical_agent.Gemini"), \
+             patch("src.models.medical_agent.DuckDuckGoTools"):
+            agent = MedicalImagingAgent("AIza" + "x" * 35, model_id="m", fallback_model_id="m")
+        assert agent.fallback_model_id is None
+
+
 class TestAgentInfo:
 
     def test_get_agent_info(self, mocked_agent):

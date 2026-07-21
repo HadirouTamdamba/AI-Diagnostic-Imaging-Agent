@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # API Configuration
     google_api_key: str = ""
     model_id: str = "gemini-flash-latest"
+    # Used automatically when the primary model is overloaded/quota-limited (503/429).
+    # Free-tier quota is per-model, so a different model can succeed where the primary fails.
+    fallback_model_id: str = "gemini-3-flash-preview"
     # Live web search adds references but costs extra requests (free-tier quota);
     # can be toggled off in the UI to conserve the daily quota.
     enable_web_search: bool = True

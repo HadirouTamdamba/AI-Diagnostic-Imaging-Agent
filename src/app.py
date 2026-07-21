@@ -55,9 +55,11 @@ except Exception as e:
 
 
 @st.cache_resource(show_spinner=False)
-def get_agent(api_key: str, model_id: str, enable_web_search: bool) -> MedicalImagingAgent:
+def get_agent(api_key: str, model_id: str, enable_web_search: bool,
+              fallback_model_id: str = "") -> MedicalImagingAgent:
     """Cache the agent across Streamlit reruns to avoid re-initializing the Gemini client"""
-    return MedicalImagingAgent(api_key, model_id=model_id, enable_web_search=enable_web_search)
+    return MedicalImagingAgent(api_key, model_id=model_id, enable_web_search=enable_web_search,
+                               fallback_model_id=fallback_model_id or None)
 
 
 class MedicalImagingApp:
@@ -305,7 +307,7 @@ class MedicalImagingApp:
             # Cached agent (no re-initialization on every rerun)
             agent = get_agent(
                 st.session_state.GOOGLE_API_KEY, settings.model_id,
-                st.session_state.enable_web_search,
+                st.session_state.enable_web_search, settings.fallback_model_id,
             )
             agent_info = agent.get_agent_info()
 
@@ -979,7 +981,7 @@ class MedicalImagingApp:
 
             agent = get_agent(
                 st.session_state.GOOGLE_API_KEY, settings.model_id,
-                st.session_state.enable_web_search,
+                st.session_state.enable_web_search, settings.fallback_model_id,
             )
 
             # Step 2: Prepare image
