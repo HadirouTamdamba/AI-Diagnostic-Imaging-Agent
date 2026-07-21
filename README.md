@@ -5,6 +5,7 @@
 [![Google AI](https://img.shields.io/badge/Google%20AI-Gemini%20Flash-orange.svg)](https://ai.google.dev)
 [![Agno](https://img.shields.io/badge/Agno-2.7.4-purple.svg)](https://docs.agno.dev)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![GHCR](https://img.shields.io/badge/ghcr.io-published-2496ED.svg?logo=github&logoColor=white)](https://github.com/HadirouTamdamba/AI-Diagnostic-Imaging-Agent/pkgs/container/ai-diagnostic-imaging-agent)
 [![AWS](https://img.shields.io/badge/AWS-Compatible-232F3E.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
@@ -73,7 +74,19 @@ streamlit run src/app.py
 
 Open http://localhost:8501. If `GOOGLE_API_KEY` is not set in `.env`, enter it in the sidebar.
 
-### Option 2 — Docker (recommended for deployment)
+### Option 2 — Run the published image (fastest, nothing to build)
+
+The container image is published publicly to GitHub Container Registry — no login required:
+
+```bash
+docker run -p 8501:8501 -e GOOGLE_API_KEY=your_key \
+  ghcr.io/hadiroutamdamba/ai-diagnostic-imaging-agent:latest
+```
+
+Open http://localhost:8501. Images are built and published automatically by the
+[release workflow](.github/workflows/release.yml) on every version tag.
+
+### Option 3 — Build locally with Docker Compose
 
 ```bash
 cp .env.example .env             # set GOOGLE_API_KEY in .env
