@@ -2,7 +2,7 @@
 
 # Core application
 streamlit==1.59.2
-agno==2.7.4
+agno==2.8.0
 
 # Google Gemini API
 google-genai>=1.30.0
