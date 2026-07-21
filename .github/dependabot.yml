@@ -21,7 +21,11 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      # Python base image is pinned to 3.12; major bumps (e.g. 3.14) break the build
+      # Python base image is intentionally pinned to 3.12: newer minors (3.13/3.14)
+      # break the build until all dependencies publish compatible wheels.
+      # Note: for image tags like "3.12-slim", 3.12 -> 3.14 is a *minor* bump,
+      # so ignoring only semver-major is not enough.
       - dependency-name: "python"
         update-types:
           - version-update:semver-major
+          - version-update:semver-minor
