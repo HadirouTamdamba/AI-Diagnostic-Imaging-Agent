@@ -125,6 +125,7 @@ All variables are optional and can be set in `.env` (see [.env.example](.env.exa
 |----------|---------|-------------|
 | `GOOGLE_API_KEY` | — | Google AI Studio key (otherwise entered in the sidebar) |
 | `MODEL_ID` | `gemini-flash-latest` | Gemini model used for analysis |
+| `FALLBACK_MODEL_ID` | `gemini-3-flash-preview` | Model used automatically when the primary is overloaded (503) or out of quota (429) |
 | `ENABLE_WEB_SEARCH` | `true` | Live web search for references; set `false` to use 1 request/analysis (saves quota) |
 | `DEFAULT_LANGUAGE` | `en` | Default UI & report language (`en`/`fr`), switchable in the UI |
 | `MAX_IMAGE_SIZE` | `5242880` | Max upload size in bytes (5 MB) |
