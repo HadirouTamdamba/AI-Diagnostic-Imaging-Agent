@@ -77,7 +77,8 @@ Open http://localhost:8501. If `GOOGLE_API_KEY` is not set in `.env`, enter it i
 ### Option 2 — Run the published image (fastest, nothing to build)
 
 The container image is published publicly to GitHub Container Registry — no login required.
-Start it, then paste your API key in the sidebar:
+It is **multi-architecture** (`linux/amd64` + `linux/arm64`), so it runs natively on Intel/AMD
+machines and on Apple Silicon. Start it, then paste your API key in the sidebar:
 
 ```bash
 docker run -p 8501:8501 ghcr.io/hadiroutamdamba/ai-diagnostic-imaging-agent:latest
