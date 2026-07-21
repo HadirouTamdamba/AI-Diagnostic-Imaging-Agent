@@ -76,14 +76,24 @@ Open http://localhost:8501. If `GOOGLE_API_KEY` is not set in `.env`, enter it i
 
 ### Option 2 — Run the published image (fastest, nothing to build)
 
-The container image is published publicly to GitHub Container Registry — no login required:
+The container image is published publicly to GitHub Container Registry — no login required.
+Start it, then paste your API key in the sidebar:
 
 ```bash
-docker run -p 8501:8501 -e GOOGLE_API_KEY=your_key \
-  ghcr.io/hadiroutamdamba/ai-diagnostic-imaging-agent:latest
+docker run -p 8501:8501 ghcr.io/hadiroutamdamba/ai-diagnostic-imaging-agent:latest
 ```
 
-Open http://localhost:8501. Images are built and published automatically by the
+Open http://localhost:8501. To pass the key up front instead, keep it on **one line** and
+put no space after `=` (quotes recommended):
+
+```bash
+docker run -p 8501:8501 -e GOOGLE_API_KEY="your_key" ghcr.io/hadiroutamdamba/ai-diagnostic-imaging-agent:latest
+```
+
+> Passing the key on the command line stores it in your shell history. Prefer entering it in
+> the sidebar, or use `--env-file .env`.
+
+Images are built and published automatically by the
 [release workflow](.github/workflows/release.yml) on every version tag.
 
 ### Option 3 — Build locally with Docker Compose
