@@ -1,8 +1,8 @@
 # Medical Imaging Diagnosis Agent - production dependencies
 
 # Core application
-streamlit==1.59.2
-agno==2.8.0
+streamlit==1.60.0
+agno==2.8.5
 
 # Google Gemini API
 google-genai>=2.12.1
