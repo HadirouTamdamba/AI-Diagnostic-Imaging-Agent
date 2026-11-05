@@ -8,17 +8,15 @@ import traceback
 import warnings
 from pathlib import Path
 
-import streamlit as st
+# Add src to path for imports before trying to import streamlit
+current_dir = Path(__file__).parent
+src_dir = current_dir
+sys.path.insert(0, str(src_dir))
 
 # Suppress specific warnings
 os.environ['PYTHONWARNINGS'] = 'ignore::RuntimeWarning:duckduckgo_search'
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='duckduckgo_search')
 warnings.filterwarnings('ignore', category=ResourceWarning, message='.*unclosed file.*')
-
-# Add src to path for imports
-current_dir = Path(__file__).parent
-src_dir = current_dir
-sys.path.insert(0, str(src_dir))
 
 # Configure logging before other imports
 _log_handlers = [logging.StreamHandler()]
@@ -34,6 +32,13 @@ logging.basicConfig(
     handlers=_log_handlers
 )
 logger = logging.getLogger(__name__)
+
+try:
+    import streamlit as st  # type: ignore[import]
+except ImportError:
+    logger.error("Streamlit is required to run this application.")
+    logger.error("Install dependencies with `pip install -r requirements.txt`.")
+    raise
 
 try:
     # Local imports with error handling
