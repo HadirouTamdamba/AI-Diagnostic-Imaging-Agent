@@ -287,23 +287,16 @@ class MedicalImagingApp:
         """Render application information"""
         st.subheader(self.t("app_info"))
 
-        with st.expander("📋 Features", expanded=False):
-            st.markdown("""
-            **Core Capabilities:**
-            - 🔍 Multi-modal medical image analysis
-            - 📊 Structured diagnostic reporting
-            - 🔬 Research literature integration
-            - 👥 Patient-friendly explanations
-            - 📥 Report export functionality
-            """)
+        with st.expander(self.t("info_features_h"), expanded=False):
+            st.markdown(self.t("info_features"))
 
-        with st.expander("🛠️ Technical Specs", expanded=False):
-            st.markdown(f"""
-            - **Model**: {settings.model_id}
-            - **Max Image Size**: {settings.max_image_size / (1024*1024):.1f}MB
-            - **Supported Formats**: {', '.join(settings.supported_formats).upper()}
-            - **Analysis Timeout**: {settings.max_analysis_time}s
-            """)
+        with st.expander(self.t("info_specs_h"), expanded=False):
+            st.markdown(self.t("info_specs").format(
+                model=settings.model_id,
+                size=f"{settings.max_image_size / (1024*1024):.1f}",
+                formats=", ".join(settings.supported_formats).upper(),
+                timeout=settings.max_analysis_time,
+            ))
 
     def _render_model_info(self):
         """Render model information"""
@@ -318,7 +311,7 @@ class MedicalImagingApp:
 
             st.success(self.t("model_ready"))
             st.write(f"**{self.t('model')}**: {agent_info['model_id']}")
-            st.write(f"**Tools**: {', '.join(agent_info['tools']) or '—'}")
+            st.write(f"**{self.t('tools_label')}**: {', '.join(agent_info['tools']) or '—'}")
 
         except Exception as e:
             st.error(self.t("model_error"))
@@ -349,9 +342,9 @@ class MedicalImagingApp:
 
         # Check system health
         status_items = {
-            "Streamlit": "🟢 Running",
-            "Dependencies": "🟢 Loaded" if 'agno' in sys.modules else "🔴 Missing",
-            "Session": "🟢 Active" if st.session_state.get("app_initialized") else "🔴 Error"
+            "Streamlit": self.t("status_running"),
+            self.t("label_dependencies"): self.t("status_loaded") if 'agno' in sys.modules else self.t("status_missing"),
+            self.t("label_session"): self.t("status_active") if st.session_state.get("app_initialized") else self.t("status_error"),
         }
 
         for item, status in status_items.items():
@@ -428,36 +421,17 @@ class MedicalImagingApp:
         """Render setup instructions when API key is missing"""
         st.warning(self.t("config_required"))
 
-        st.markdown("""
-        To get started:
-        1. 🔑 Get a free API key from [Google AI Studio](https://aistudio.google.com/apikey)
-        2. 📝 Enter your API key in the sidebar
-        3. 🚀 Start analyzing medical images!
-
-        **Free tier**: the daily quota is small and varies by model. Check your usage in Google AI Studio.
-        """)
+        st.markdown(self.t("setup_steps") + "\n\n" + self.t("setup_free_tier"))
 
         # Show demo information
-        with st.expander("🎯 What This Tool Can Do", expanded=True):
+        with st.expander(self.t("setup_what_h"), expanded=True):
             col1, col2 = st.columns(2)
 
             with col1:
-                st.markdown("""
-                **Image Types Supported:**
-                - 🦴 X-rays (Chest, Skeletal, Dental)
-                - 🧠 MRI Scans (Brain, Spine, Joints)
-                - 🫁 CT Scans (Thoracic, Abdominal)
-                - ❤️ Ultrasound (Cardiac, Obstetric)
-                """)
+                st.markdown(self.t("setup_types"))
 
             with col2:
-                st.markdown("""
-                **Analysis Features:**
-                - 📋 Structured diagnostic reports
-                - 🔍 Detailed findings identification
-                - 📚 Medical literature integration
-                - 👥 Patient-friendly explanations
-                """)
+                st.markdown(self.t("setup_features"))
 
     def _render_upload_interface(self):
         """Render the main upload and analysis interface"""
@@ -480,19 +454,8 @@ class MedicalImagingApp:
         st.info(self.t("upload_placeholder"))
 
         # Sample images or instructions could go here
-        with st.expander("💡 Tips for Best Results", expanded=False):
-            st.markdown("""
-            **Image Quality Guidelines:**
-            - ✅ High resolution images (minimum 200x200 pixels)
-            - ✅ Clear, well-contrasted medical images
-            - ✅ Proper anatomical positioning
-            - ✅ Standard medical imaging formats
-
-            **Supported Image Types:**
-            - JPEG/JPG files
-            - PNG files
-            - DICOM files (converted to display format)
-            """)
+        with st.expander(self.t("tips_h"), expanded=False):
+            st.markdown(self.t("tips"))
 
     def _process_uploaded_image(self, uploaded_file):
         """Enhanced image processing with better error handling"""
@@ -550,7 +513,7 @@ class MedicalImagingApp:
             if hasattr(st.session_state, 'temp_image_path'):
                 self._perform_analysis(st.session_state.temp_image_path, uploaded_file.name)
             else:
-                st.error("Please wait for image processing to complete")
+                st.error(self.t("wait_processing"))
 
         # Display current analysis if available
         if st.session_state.current_analysis:
@@ -559,16 +522,8 @@ class MedicalImagingApp:
             st.info(self.t("click_to_start"))
 
             # Show analysis preview
-            with st.expander("🔍 What to Expect", expanded=False):
-                st.markdown("""
-                **Analysis will include:**
-                - 🔍 Image type and quality assessment
-                - 📋 Systematic medical findings
-                - 🎯 Diagnostic assessment with confidence levels
-                - 👥 Patient-friendly explanations
-                - 📚 Research references and literature
-                - ⏱️ Typical analysis time: 30-120 seconds
-                """)
+            with st.expander(self.t("expect_h"), expanded=False):
+                st.markdown(self.t("expect"))
 
     def _perform_analysis(self, image_path: str, filename: str):
         """Enhanced analysis with comprehensive error handling and progress tracking"""
@@ -636,15 +591,8 @@ class MedicalImagingApp:
 
             # Show troubleshooting if multiple errors
             if st.session_state.error_count >= 2:
-                with st.expander("🔧 Troubleshooting", expanded=True):
-                    st.markdown("""
-                    **Common Solutions:**
-                    - 🔄 Try refreshing the page
-                    - 🔑 Verify your API key is correct
-                    - 🖼️ Try a different image format
-                    - 🌐 Check your internet connection
-                    - 📏 Ensure image is under 5MB
-                    """)
+                with st.expander(self.t("trouble_h"), expanded=True):
+                    st.markdown(self.t("trouble"))
 
     def _display_analysis_results(self, result: dict):
         """Enhanced results display with better formatting"""
