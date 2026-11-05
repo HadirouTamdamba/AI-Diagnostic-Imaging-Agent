@@ -33,3 +33,6 @@ htmlcov/
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+
+# R
+.Rhistory
