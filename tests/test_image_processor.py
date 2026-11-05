@@ -64,3 +64,22 @@ class TestImageProcessor:
 
         # Cleanup
         self.processor.cleanup_temp_files(temp_path)
+
+    def test_image_is_shrunk_before_enhancement(self):
+        """Enhancement must run on the resized image, not the full-size one (memory)."""
+        seen = []
+        original = self.processor.enhance_medical_image
+
+        def spy(image):
+            seen.append(image.size)
+            return original(image)
+
+        self.processor.enhance_medical_image = spy
+        test_file = self.create_test_image(size=(2400, 1800))
+        test_file.size = 1024
+        test_file.name = "big.png"
+
+        _, temp_path = self.processor.optimize_for_analysis(test_file)
+        self.processor.cleanup_temp_files(temp_path)
+
+        assert seen and max(seen[0]) <= 1024

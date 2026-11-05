@@ -107,12 +107,13 @@ class ImageProcessor:
             if image.mode not in ("RGB", "L", "RGBA"):
                 image = image.convert("RGB")
 
-            # Apply medical enhancements
-            image = self.enhance_medical_image(image)
-
-            # Resize if needed while maintaining aspect ratio
+            # Shrink first: the enhancements below allocate several full-size copies,
+            # which can exceed 512 MB on a large scan
             if image.size[0] > self.target_size[0] or image.size[1] > self.target_size[1]:
                 image.thumbnail(self.target_size, PILImage.Resampling.LANCZOS)
+
+            # Apply medical enhancements
+            image = self.enhance_medical_image(image)
 
             # Save optimized image to a unique temp file (multi-user safe)
             with tempfile.NamedTemporaryFile(suffix=".png", prefix="medimg_", delete=False) as tmp:
