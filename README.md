@@ -8,11 +8,11 @@
 [![GHCR](https://img.shields.io/badge/ghcr.io-published-2496ED.svg?logo=github&logoColor=white)](https://github.com/HadirouTamdamba/AI-Diagnostic-Imaging-Agent/pkgs/container/ai-diagnostic-imaging-agent)
 [![AWS](https://img.shields.io/badge/AWS-Compatible-232F3E.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Live demo](https://img.shields.io/badge/Live%20demo-Render-46E3B7.svg?logo=render&logoColor=white)](https://medical-imaging-agent-7jvi.onrender.com)
+[![Live demo](https://img.shields.io/badge/Live%20demo-Render-46E3B7.svg?logo=render&logoColor=white)](https://ai-diagnostic-imaging-agent.onrender.com)
 
 An advanced AI-powered medical imaging analysis tool built with Streamlit and Google's Gemini Flash model. This application addresses the critical challenge of providing rapid, accurate, and accessible medical image interpretation to bridge the gap between complex diagnostic imaging and clinical decision-making.
 
-**Live demo: https://medical-imaging-agent-7jvi.onrender.com**
+**Live demo: https://ai-diagnostic-imaging-agent.onrender.com**
 
 It runs on Render's free plan, so it goes to sleep after 15 minutes without visits and the first load takes about a minute. Paste your own Gemini API key in the sidebar to run an analysis.
 
