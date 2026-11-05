@@ -18,7 +18,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "language": "🌐 Language",
         "navigation": "🧭 Navigation",
         "home": "🏠 Home",
-        "about": "👨‍💻 About",
+        "about": "ℹ️ About",
         "api_configuration": "🔑 API Configuration",
         "api_key_label": "Google API Key:",
         "api_key_placeholder": "Enter your API key here...",
@@ -89,6 +89,52 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "new_analysis": "🔄 New Analysis",
         "retry_analysis": "🔄 Retry Analysis",
         "analysis_failed_header": "❌ Analysis Failed",
+
+        # About page
+        "about_title": "ℹ️ About this platform",
+        "about_intro": (
+            "Medical Imaging Diagnosis Agent is an AI assistant that reads a medical image and "
+            "drafts a structured report. It is an educational demo of an end-to-end generative-AI "
+            "product, not a medical device."
+        ),
+        "about_what_h": "What it does",
+        "about_what": (
+            "- Reads X-ray, MRI, CT and ultrasound images (JPG or PNG, up to 5 MB)\n"
+            "- Assesses image quality and lists the findings systematically\n"
+            "- Proposes a most-likely assessment with a confidence level, plus alternatives\n"
+            "- Explains the result in plain language\n"
+            "- Can look up live references on the web (optional toggle)\n"
+            "- Writes in English or French, and translates an existing report in one click"
+        ),
+        "about_how_h": "How it works",
+        "about_step1_h": "Upload",
+        "about_step1_b": "Drop in a medical image. No software to install, just your browser.",
+        "about_step2_h": "Examine",
+        "about_step2_b": "The agent looks at the image the way a first reader would.",
+        "about_step3_h": "Report",
+        "about_step3_b": "It writes an organised report: findings, assessment, confidence level.",
+        "about_step4_h": "Explain",
+        "about_step4_b": "It restates the result in everyday words and what to double-check.",
+        "about_tech_h": "Under the hood",
+        "about_tech": (
+            "- Google Gemini vision model, driven by the Agno agent framework\n"
+            "- Retries on transient errors and falls back to a second model when the first is overloaded\n"
+            "- Your image is sent to Google's Gemini API for analysis; temporary files are deleted "
+            "right after and nothing is stored on the server\n"
+            "- Your API key is only kept for your session\n"
+            "- Built with Streamlit and shipped as a multi-architecture Docker image"
+        ),
+        "about_limits_h": "Good to know",
+        "about_limits": (
+            "- For educational use only: its output can be wrong\n"
+            "- Every result must be reviewed by a qualified healthcare professional\n"
+            "- You need your own Google AI Studio API key; the free quota is small and varies by model\n"
+            "- On a free hosting plan the app may sleep when idle, so the first load can take about a minute"
+        ),
+        "about_links_h": "Open source",
+        "about_repo": "💻 Source code",
+        "about_issues": "🐞 Report an issue",
+        "about_image": "🐳 Docker image",
     },
     "fr": {
         # Header / footer
@@ -100,7 +146,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "language": "🌐 Langue",
         "navigation": "🧭 Navigation",
         "home": "🏠 Accueil",
-        "about": "👨‍💻 À propos",
+        "about": "ℹ️ À propos",
         "api_configuration": "🔑 Configuration de l'API",
         "api_key_label": "Clé API Google :",
         "api_key_placeholder": "Saisissez votre clé API ici...",
@@ -171,6 +217,52 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "new_analysis": "🔄 Nouvelle analyse",
         "retry_analysis": "🔄 Relancer l'analyse",
         "analysis_failed_header": "❌ Échec de l'analyse",
+
+        # About page
+        "about_title": "ℹ️ À propos de la plateforme",
+        "about_intro": (
+            "Medical Imaging Diagnosis Agent est un assistant IA qui lit une image médicale et "
+            "rédige un premier jet de compte rendu structuré. C'est une démo éducative d'un produit "
+            "d'IA générative de bout en bout, pas un dispositif médical."
+        ),
+        "about_what_h": "Ce qu'elle fait",
+        "about_what": (
+            "- Lit des images de radiographie, IRM, scanner et échographie (JPG ou PNG, jusqu'à 5 Mo)\n"
+            "- Évalue la qualité de l'image et liste les observations de façon systématique\n"
+            "- Propose une hypothèse la plus probable avec un niveau de confiance, et des alternatives\n"
+            "- Explique le résultat en langage clair\n"
+            "- Peut chercher des références en direct sur le web (option à activer)\n"
+            "- Rédige en anglais ou en français, et traduit un rapport existant en un clic"
+        ),
+        "about_how_h": "Comment ça marche",
+        "about_step1_h": "Import",
+        "about_step1_b": "Déposez une image médicale. Rien à installer, juste votre navigateur.",
+        "about_step2_h": "Examen",
+        "about_step2_b": "L'agent regarde l'image comme le ferait un premier lecteur.",
+        "about_step3_h": "Rapport",
+        "about_step3_b": "Il rédige un rapport organisé : observations, hypothèse, niveau de confiance.",
+        "about_step4_h": "Explication",
+        "about_step4_b": "Il reformule le résultat en mots simples et ce qu'il faut vérifier.",
+        "about_tech_h": "Sous le capot",
+        "about_tech": (
+            "- Modèle de vision Google Gemini, piloté par le framework d'agents Agno\n"
+            "- Nouvelles tentatives sur erreur transitoire, et bascule sur un second modèle si le premier est saturé\n"
+            "- Votre image est envoyée à l'API Gemini de Google pour l'analyse ; les fichiers temporaires "
+            "sont supprimés juste après et rien n'est conservé sur le serveur\n"
+            "- Votre clé API n'est gardée que le temps de votre session\n"
+            "- Construite avec Streamlit et livrée en image Docker multi-architecture"
+        ),
+        "about_limits_h": "Bon à savoir",
+        "about_limits": (
+            "- À usage éducatif uniquement : le résultat peut être faux\n"
+            "- Tout résultat doit être revu par un professionnel de santé qualifié\n"
+            "- Il faut votre propre clé API Google AI Studio ; le quota gratuit est faible et varie selon le modèle\n"
+            "- Sur un hébergement gratuit, l'application peut s'endormir : le premier chargement peut prendre environ une minute"
+        ),
+        "about_links_h": "Open source",
+        "about_repo": "💻 Code source",
+        "about_issues": "🐞 Signaler un problème",
+        "about_image": "🐳 Image Docker",
     },
 }
 
