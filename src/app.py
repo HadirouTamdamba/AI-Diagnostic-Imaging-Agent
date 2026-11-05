@@ -832,7 +832,7 @@ class MedicalImagingApp:
         2. 📝 Enter your API key in the sidebar
         3. 🚀 Start analyzing medical images!
 
-        **Free Tier**: 1,500 requests per day at no cost.
+        **Free tier**: the daily quota is small and varies by model. Check your usage in Google AI Studio.
         """)
 
         # Show demo information
